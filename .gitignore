@@ -27,6 +27,8 @@ wheels/
 .ruff_cache/
 *.db
 *.sqlite3
+*.pt
+*.pth
 
 # Node / Frontend
 node_modules/

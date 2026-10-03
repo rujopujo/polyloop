@@ -1,190 +1,228 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  Legend 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
+  ResponsiveContainer, PieChart, Pie, Cell, Legend 
 } from 'recharts';
 import { 
-  Leaf, 
-  Fuel, 
-  Flame, 
-  Car, 
-  Trash2, 
-  Layers, 
-  TrendingUp 
+  Leaf, Fuel, Flame, Trash2, Car, Trees, 
+  Zap, Globe, Sliders, ArrowUpRight, ShieldCheck
 } from 'lucide-react';
 import { api, FALLBACK_BATCH_METRICS } from '../services/api';
 import { formatKg, formatCO2, formatPercent } from '../utils/formatting';
+import { sound } from '../utils/sound';
 
-const COLORS = ['#10b981', '#06b6d4', '#f59e0b', '#ef4444', '#8b5cf6'];
+const PIE_COLORS = ['#0df2a4', '#00f0ff', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function LCAMetricsCard({ activeBatchId }) {
   const [metrics, setMetrics] = useState(FALLBACK_BATCH_METRICS);
   const [batches, setBatches] = useState([]);
   const [selectedBatchId, setSelectedBatchId] = useState(activeBatchId || 'BATCH-EWEM-PILOT-01');
+  const [lotMultiplier, setLotMultiplier] = useState(1); // multiplier for scale slider
 
   useEffect(() => {
     async function loadBatches() {
       const data = await api.getBatches();
       setBatches(data);
-      if (data && data.length > 0 && !activeBatchId) {
-        setSelectedBatchId(data[0].id);
-      }
+      if (data?.length > 0 && !activeBatchId) setSelectedBatchId(data[0].id);
     }
     loadBatches();
   }, [activeBatchId]);
 
   useEffect(() => {
-    async function fetchMetrics() {
-      if (!selectedBatchId) return;
-      const data = await api.getBatchMetrics(selectedBatchId);
-      setMetrics(data);
-    }
-    fetchMetrics();
+    if (!selectedBatchId) return;
+    api.getBatchMetrics(selectedBatchId).then(setMetrics);
   }, [selectedBatchId]);
 
-  // Carbon comparison bar chart data
+  const handleBatchChange = (e) => {
+    sound.playClick();
+    setSelectedBatchId(e.target.value);
+  };
+
+  const handleSliderChange = (e) => {
+    setLotMultiplier(Number(e.target.value));
+  };
+
+  const scaledCO2 = ((metrics.net_co2_avoided_kg || 284.7) * lotMultiplier).toFixed(1);
+  const scaledOil = ((metrics.crude_oil_saved_liters || 205.5) * lotMultiplier).toFixed(1);
+  const scaledKm = Math.round((metrics.km_driven_offset || 1158.7) * lotMultiplier);
+  const scaledTrees = (scaledCO2 / 21.7).toFixed(1); // 1 mature tree absorbs ~21.7kg CO2/year
+
   const comparisonData = [
-    {
-      name: 'Virgin Petrochemical Resin',
-      kgCO2e: metrics.virgin_resin_carbon_kg || 362.5,
-      fill: '#ef4444'
-    },
-    {
-      name: 'PolyLoop Circular Process',
-      kgCO2e: metrics.polyloop_process_carbon_kg || 66.3,
-      fill: '#10b981'
-    }
+    { name: 'Virgin Petrochemical Resin', kgCO2e: Math.round((metrics.virgin_resin_carbon_kg || 362.5) * lotMultiplier), fill: '#ef4444' },
+    { name: 'PolyLoop Circular Re-Extrusion', kgCO2e: Math.round((metrics.polyloop_process_carbon_kg || 66.3) * lotMultiplier), fill: '#0df2a4' }
   ];
 
-  // Pie chart data
   const compositionData = metrics.composition_breakdown?.map(item => ({
-    name: item.polymer,
-    value: item.mass_kg,
+    name: item.polymer, 
+    value: item.mass_kg * lotMultiplier, 
     percentage: item.percentage
   })) || [];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-6 shadow-2xl">
-      {/* Title & Batch Picker */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <Leaf className="w-5 h-5" />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="glass-panel-elevated rounded-3xl p-6 sm:p-8 space-y-8 relative overflow-hidden"
+    >
+      {/* Header & Batch Selector */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center shadow-[0_0_20px_rgba(13,242,164,0.2)]">
+            <Leaf className="w-6 h-6 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-100">
-              ISO 14040/14044 Life Cycle Assessment (LCA) Telemetry
+            <h2 className="text-xl font-display font-black text-white tracking-tight flex items-center gap-2">
+              ISO 14040 / 14044 LIFE CYCLE ASSESSMENT (LCA)
             </h2>
-            <p className="text-xs text-slate-400">
-              Cradle-to-gate carbon displacement and circular mass balance metrics
+            <p className="text-xs text-slate-400 font-mono">
+              Cradle-to-Gate Carbon Displacement • Scope 3 Inflow Telemetry
             </p>
           </div>
         </div>
 
-        {/* Batch Select */}
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-slate-400 font-mono hidden sm:inline">Active Batch:</span>
-          <select
-            value={selectedBatchId}
-            onChange={(e) => setSelectedBatchId(e.target.value)}
-            className="bg-slate-950 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-1.5 font-mono focus:border-emerald-500"
-          >
-            {batches.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name} ({b.id})
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+          value={selectedBatchId}
+          onChange={handleBatchChange}
+          className="bg-[#04060c] border border-white/[0.1] text-slate-200 text-xs rounded-xl px-4 py-2.5 font-mono focus:outline-none focus:border-emerald-400 cursor-pointer shadow-inner"
+        >
+          {batches.map((b) => (
+            <option key={b.id} value={b.id}>{b.name}</option>
+          ))}
+        </select>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* Net CO2 Avoided */}
-        <div className="p-4 rounded-xl bg-slate-950/80 border border-emerald-500/20 space-y-1 relative overflow-hidden">
-          <div className="flex justify-between items-center text-slate-400 text-xs">
-            <span>Net CO₂e Prevented</span>
+      {/* Scale Simulator Slider */}
+      <div className="p-4 rounded-2xl bg-[#040710] border border-white/[0.06] flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5">
+          <Sliders className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs font-mono font-bold text-slate-200">
+            SIMULATE INFLOW SCALE:
+          </span>
+        </div>
+        <div className="flex-1 max-w-md flex items-center gap-3">
+          <span className="text-[10px] font-mono text-slate-500">1x (100 kg)</span>
+          <input
+            type="range"
+            min="1"
+            max="25"
+            step="1"
+            value={lotMultiplier}
+            onChange={handleSliderChange}
+            className="flex-1 accent-emerald-400 cursor-pointer"
+          />
+          <span className="text-[10px] font-mono text-slate-500">25x (2.5 tons)</span>
+        </div>
+        <span className="px-3 py-1 rounded-xl bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 font-mono text-xs font-black">
+          {lotMultiplier}x LOT MULTIPLIER ({lotMultiplier * 100} kg)
+        </span>
+      </div>
+
+      {/* Primary KPI Grid with Real-World Equivalents */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        {/* Metric 1: Carbon Avoidance */}
+        <div className="p-5 rounded-3xl bg-[#04060c] border border-emerald-400/30 space-y-2 relative overflow-hidden group">
+          <div className="flex justify-between items-center text-xs font-mono text-slate-400">
+            <span>NET CO₂e AVOIDED</span>
             <Leaf className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-mono font-extrabold text-emerald-400">
-            {formatCO2(metrics.net_co2_avoided_kg)}
+          <div className="text-2xl sm:text-3xl font-mono font-black text-emerald-400 glow-text-mint">
+            +{scaledCO2} kg
           </div>
-          <p className="text-[10px] text-slate-500">ISO 14040 virgin plastic displacement</p>
-          <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
+          <div className="text-[11px] font-mono text-slate-500 flex items-center gap-1.5 pt-1">
+            <Trees className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Eq. to <strong>{scaledTrees}</strong> mature trees / yr</span>
+          </div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-400/5 blur-2xl pointer-events-none" />
         </div>
 
-        {/* Crude Oil Saved */}
-        <div className="p-4 rounded-xl bg-slate-950/80 border border-cyan-500/20 space-y-1 relative overflow-hidden">
-          <div className="flex justify-between items-center text-slate-400 text-xs">
-            <span>Crude Oil Saved</span>
+        {/* Metric 2: Crude Oil Saved */}
+        <div className="p-5 rounded-3xl bg-[#04060c] border border-cyan-400/30 space-y-2 relative overflow-hidden group">
+          <div className="flex justify-between items-center text-xs font-mono text-slate-400">
+            <span>CRUDE OIL SAVED</span>
             <Fuel className="w-4 h-4 text-cyan-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-mono font-extrabold text-cyan-400">
-            ~{Number(metrics.crude_oil_saved_liters || 0).toFixed(1)} L
+          <div className="text-2xl sm:text-3xl font-mono font-black text-cyan-400 glow-text-cyan">
+            {scaledOil} L
           </div>
-          <p className="text-[10px] text-slate-500">Direct fossil fuel extraction avoided</p>
-          <div className="absolute top-0 right-0 w-12 h-12 bg-cyan-500/5 rounded-full blur-xl pointer-events-none" />
+          <div className="text-[11px] font-mono text-slate-500 flex items-center gap-1.5 pt-1">
+            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{(scaledOil / 159).toFixed(1)} barrels crude avoided</span>
+          </div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-400/5 blur-2xl pointer-events-none" />
         </div>
 
-        {/* Coal Combustion Equivalent */}
-        <div className="p-4 rounded-xl bg-slate-950/80 border border-amber-500/20 space-y-1 relative overflow-hidden">
-          <div className="flex justify-between items-center text-slate-400 text-xs">
-            <span>Coal Offset Equivalent</span>
-            <Flame className="w-4 h-4 text-amber-400" />
+        {/* Metric 3: EV Km Equivalent */}
+        <div className="p-5 rounded-3xl bg-[#04060c] border border-amber-400/30 space-y-2 relative overflow-hidden group">
+          <div className="flex justify-between items-center text-xs font-mono text-slate-400">
+            <span>MOBILITY OFFSET</span>
+            <Car className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-mono font-extrabold text-amber-400">
-            ~{Number(metrics.coal_offset_kg || 0).toFixed(1)} kg
+          <div className="text-2xl sm:text-3xl font-mono font-black text-amber-400">
+            {scaledKm.toLocaleString()} km
           </div>
-          <p className="text-[10px] text-slate-500">0.49 kg bituminous coal factor</p>
-          <div className="absolute top-0 right-0 w-12 h-12 bg-amber-500/5 rounded-full blur-xl pointer-events-none" />
+          <div className="text-[11px] font-mono text-slate-500 flex items-center gap-1.5 pt-1">
+            <Zap className="w-3.5 h-3.5 text-amber-400" />
+            <span>EV driving emissions avoided</span>
+          </div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/5 blur-2xl pointer-events-none" />
         </div>
 
-        {/* Landfill Mass Diverted */}
-        <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-700 space-y-1 relative overflow-hidden">
-          <div className="flex justify-between items-center text-slate-400 text-xs">
-            <span>Usable Mass Upcycled</span>
-            <Trash2 className="w-4 h-4 text-slate-300" />
+        {/* Metric 4: Circularity Yield */}
+        <div className="p-5 rounded-3xl bg-[#04060c] border border-purple-400/30 space-y-2 relative overflow-hidden group">
+          <div className="flex justify-between items-center text-xs font-mono text-slate-400">
+            <span>CIRCULAR YIELD</span>
+            <ShieldCheck className="w-4 h-4 text-purple-400" />
           </div>
-          <div className="text-xl sm:text-2xl font-mono font-extrabold text-slate-100">
-            {formatKg(metrics.usable_mass_kg)}
+          <div className="text-2xl sm:text-3xl font-mono font-black text-purple-400">
+            {metrics.circularity_yield_percent || 85.0}%
           </div>
-          <p className="text-[10px] text-slate-500">Circularity Yield: {formatPercent(metrics.circularity_yield_percent)}</p>
+          <div className="text-[11px] font-mono text-slate-500 flex items-center gap-1.5 pt-1">
+            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+            <span>15% quarantined for BFR</span>
+          </div>
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-400/5 blur-2xl pointer-events-none" />
         </div>
       </div>
 
-      {/* Visual Recharts Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
-        {/* Bar Chart: Virgin vs PolyLoop Carbon Footprint */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-xs font-mono text-slate-300 font-semibold">
-              Carbon Footprint Comparison (kg CO₂e)
-            </span>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
-              -81.7% Emission Reduction
+      {/* High-Impact Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Carbon Comparative Bar Chart */}
+        <div className="lg:col-span-7 p-6 rounded-3xl bg-[#04060c] border border-white/[0.08] space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-display font-bold text-white text-sm">
+                CARBON FOOTPRINT COMPARATIVE ANALYSIS (kg CO₂e)
+              </h3>
+              <p className="text-[11px] text-slate-400 font-mono">
+                Virgin Petrochemical vs. PolyLoop Optical + Desktop Extrusion
+              </p>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-emerald-400/15 text-emerald-300 font-mono text-xs font-bold border border-emerald-400/30">
+              81.7% REDUCTION
             </span>
           </div>
 
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={comparisonData} margin={{ top: 20, right: 20, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="name" stroke="#64748b" fontSize={10} tickLine={false} />
-                <YAxis stroke="#64748b" fontSize={10} tickLine={false} unit=" kg" />
+              <BarChart data={comparisonData} layout="vertical" margin={{ top: 15, right: 30, left: 40, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                <XAxis type="number" stroke="#64748b" tick={{ fill: '#64748b', fontSize: 11, fontFamily: 'monospace' }} />
+                <YAxis dataKey="name" type="category" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} width={140} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', fontSize: '11px' }}
-                  itemStyle={{ color: '#f8fafc' }}
+                  contentStyle={{ 
+                    backgroundColor: '#090d16', 
+                    borderColor: 'rgba(255,255,255,0.15)', 
+                    borderRadius: '12px',
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    color: '#fff' 
+                  }} 
                 />
-                <Bar dataKey="kgCO2e" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="kgCO2e" radius={[0, 8, 8, 0]}>
                   {comparisonData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.fill} />
                   ))}
@@ -194,18 +232,18 @@ export default function LCAMetricsCard({ activeBatchId }) {
           </div>
         </div>
 
-        {/* Doughnut Chart: Batch Composition Breakdown */}
-        <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-          <div className="flex justify-between items-center">
-            <span className="text-xs font-mono text-slate-300 font-semibold">
-              Batch Polymer Composition & BFR Segregation
-            </span>
-            <span className="text-[10px] font-mono text-slate-400">
-              Total Inflow: {formatKg(metrics.total_inflow_mass_kg)}
-            </span>
+        {/* Lot Inflow Composition Donut */}
+        <div className="lg:col-span-5 p-6 rounded-3xl bg-[#04060c] border border-white/[0.08] space-y-4 flex flex-col justify-between">
+          <div>
+            <h3 className="font-display font-bold text-white text-sm">
+              LOT RESIN COMPOSITION BALANCE
+            </h3>
+            <p className="text-[11px] text-slate-400 font-mono">
+              Inflow segregation breakdown by mass
+            </p>
           </div>
 
-          <div className="h-64 w-full flex items-center justify-center">
+          <div className="h-56 w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -213,28 +251,40 @@ export default function LCAMetricsCard({ activeBatchId }) {
                   cx="50%"
                   cy="50%"
                   innerRadius={55}
-                  outerRadius={85}
+                  outerRadius={80}
                   paddingAngle={4}
                   dataKey="value"
                 >
                   {compositionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', fontSize: '11px' }}
-                  formatter={(val, name) => [`${val} kg (${((val / metrics.total_inflow_mass_kg) * 100).toFixed(1)}%)`, name]}
-                />
-                <Legend 
-                  verticalAlign="bottom" 
-                  height={36} 
-                  formatter={(value) => <span className="text-slate-300 text-xs font-mono">{value}</span>}
+                  contentStyle={{ 
+                    backgroundColor: '#090d16', 
+                    borderColor: 'rgba(255,255,255,0.15)', 
+                    borderRadius: '12px',
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    color: '#fff' 
+                  }}
+                  formatter={(val) => [`${Number(val).toFixed(1)} kg`, 'Mass']}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
+
+          <div className="grid grid-cols-2 gap-2 text-[11px] font-mono">
+            {compositionData.map((item, idx) => (
+              <div key={item.name} className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }} />
+                <span className="text-slate-300 font-bold">{item.name}:</span>
+                <span className="text-slate-500">{item.percentage}%</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

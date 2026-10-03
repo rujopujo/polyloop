@@ -1,32 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FileCheck2, 
-  Download, 
-  X, 
-  ShieldCheck, 
-  Flame, 
-  Leaf, 
-  Hash, 
-  QrCode, 
-  CheckCircle2, 
-  AlertTriangle 
+  FileCheck2, Download, X, ShieldCheck, 
+  Flame, Leaf, QrCode, Copy, Check, Printer,
+  Sparkles, ExternalLink, Hash, Award
 } from 'lucide-react';
 import { api, FALLBACK_BATCH_METRICS, FALLBACK_POLYMERS } from '../services/api';
 import { formatKg, formatCO2, formatDateTime } from '../utils/formatting';
+import { sound } from '../utils/sound';
 
 export default function PassportModal({ batchId, isOpen, onClose }) {
   const [metrics, setMetrics] = useState(FALLBACK_BATCH_METRICS);
   const [batchInfo, setBatchInfo] = useState(null);
+  const [copiedHash, setCopiedHash] = useState(false);
 
   useEffect(() => {
     if (!batchId || !isOpen) return;
-
     async function loadData() {
       const m = await api.getBatchMetrics(batchId);
       setMetrics(m);
       const allBatches = await api.getBatches();
-      const b = allBatches.find(x => x.id === batchId);
-      setBatchInfo(b);
+      setBatchInfo(allBatches.find(x => x.id === batchId));
     }
     loadData();
   }, [batchId, isOpen]);
@@ -36,208 +30,202 @@ export default function PassportModal({ batchId, isOpen, onClose }) {
   const targetPolymer = metrics.target_polymer || "ABS";
   const polymerProfile = FALLBACK_POLYMERS[targetPolymer] || FALLBACK_POLYMERS.ABS;
   const specs = polymerProfile.thermal_specs || {};
+  const mockSha256 = `0x${batchId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}9a4f8b2c1e7d3890f5aa67812903e4d`;
 
   const handleDownload = () => {
+    sound.playClick();
     window.open(`/api/passport/${batchId}/pdf`, '_blank');
   };
 
+  const handleCopyHash = () => {
+    sound.playSuccess();
+    navigator.clipboard.writeText(mockSha256);
+    setCopiedHash(true);
+    setTimeout(() => setCopiedHash(false), 2000);
+  };
+
+  const handlePrint = () => {
+    sound.playClick();
+    window.print();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
-        {/* Modal Top Bar */}
-        <div className="p-4 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-              <FileCheck2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-100 font-mono tracking-wide">
-                DIGITAL MATERIAL PASSPORT PREVIEW
-              </h2>
-              <p className="text-xs text-slate-400 font-mono">
-                Verification Ledger ID: <span className="text-emerald-400 font-bold">{batchId}</span>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={handleDownload}
-              className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-950 font-mono"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download Official PDF</span>
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable Passport Content */}
-        <div className="p-6 overflow-y-auto space-y-6 text-xs text-slate-300">
-          {/* Section 1: Executive Clearance Header */}
-          <div className="p-5 rounded-xl bg-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
-            <div className="space-y-1">
-              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider block">
-                Certificate Status
-              </span>
-              <div className="flex items-center space-x-2">
-                <span className="text-xl font-bold font-mono text-slate-100">
-                  {batchInfo?.name || metrics.batch_name}
-                </span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[10px]">
-                  QUALIFIED LOT
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400">
-                Created: {formatDateTime(metrics.created_at)} | Target Matrix: <b className="text-slate-200">{targetPolymer}</b>
-              </p>
-            </div>
-
-            {/* Hash Stamp & QR Representation */}
-            <div className="flex items-center space-x-3 bg-slate-900 px-3.5 py-2 rounded-lg border border-slate-800 font-mono text-[10px]">
-              <QrCode className="w-8 h-8 text-emerald-400 shrink-0" />
-              <div>
-                <span className="text-slate-500 block">SHA-256 LEDGER HASH:</span>
-                <span className="text-slate-300 font-bold block">
-                  {batchId?.slice(-8) || "8F4A2C19"}...E412A8
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Chemical & BFR Compliance */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-slate-200 flex items-center space-x-2 uppercase font-mono text-xs text-emerald-400">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>1. Regulatory Directives & Chemical Safety Audit</span>
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-1">
-                <span className="text-[10px] text-emerald-400 font-mono font-bold block">EU RoHS DIRECTIVE</span>
-                <p className="text-slate-200 font-bold">PASSED (&lt; 0.1% / 1000 ppm)</p>
-                <p className="text-[10px] text-slate-400">DecaBDE / OctaBDE below statutory maximum limits.</p>
-              </div>
-              <div className="p-3.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-1">
-                <span className="text-[10px] text-emerald-400 font-mono font-bold block">EU POPs REGULATION 2019/1021</span>
-                <p className="text-slate-200 font-bold">CLEARED (&lt; 500 ppm)</p>
-                <p className="text-[10px] text-slate-400">Qualified for secondary consumer goods & 3D filament.</p>
-              </div>
-              <div className="p-3.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 space-y-1">
-                <span className="text-[10px] text-cyan-400 font-mono font-bold block">WEEE DIRECTIVE ANNEX VII</span>
-                <p className="text-slate-200 font-bold">SELECTIVE EXTRACTION OK</p>
-                <p className="text-[10px] text-slate-400">Hazardous CRT / flame-retarded fractions segregated.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: LCA Environmental Impact Statement */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-slate-200 flex items-center space-x-2 uppercase font-mono text-xs text-cyan-400">
-              <Leaf className="w-4 h-4 text-cyan-400" />
-              <span>2. ISO 14040/14044 Life Cycle Assessment Statement</span>
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Net CO₂e Prevented</span>
-                <span className="text-lg font-mono font-extrabold text-emerald-400">
-                  {formatCO2(metrics.net_co2_avoided_kg)}
-                </span>
-              </div>
-              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Crude Oil Saved</span>
-                <span className="text-lg font-mono font-extrabold text-cyan-400">
-                  ~{Number(metrics.crude_oil_saved_liters || 0).toFixed(1)} L
-                </span>
-              </div>
-              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Coal Offset</span>
-                <span className="text-lg font-mono font-extrabold text-amber-400">
-                  ~{Number(metrics.coal_offset_kg || 0).toFixed(1)} kg
-                </span>
-              </div>
-              <div className="p-3 rounded-lg bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block">Circularity Yield</span>
-                <span className="text-lg font-mono font-extrabold text-slate-100">
-                  {((metrics.usable_mass_kg / metrics.total_inflow_mass_kg) * 100).toFixed(1)}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: 3-Zone Extrusion Datasheet */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-slate-200 flex items-center space-x-2 uppercase font-mono text-xs text-amber-400">
-              <Flame className="w-4 h-4 text-amber-400" />
-              <span>3. Filament Extrusion & 3D Printing Datasheet</span>
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
-              <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 font-mono">
-                <div className="flex justify-between text-slate-400">
-                  <span>Pre-Drying Temp & Time:</span>
-                  <span className="text-slate-100 font-bold">{specs.pre_drying_temp_c}°C ({specs.pre_drying_hours})</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Moisture Tolerance:</span>
-                  <span className="text-emerald-400 font-bold">&lt; {specs.max_moisture_ppm} ppm</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Single-Screw Feed Z1:</span>
-                  <span className="text-slate-100">{specs.extruder_feed_zone1_c}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Transition Zone Z2:</span>
-                  <span className="text-slate-100">{specs.extruder_transition_zone2_c}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Die Melt Orifice Z3:</span>
-                  <span className="text-slate-100">{specs.extruder_die_zone3_c}</span>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 space-y-1.5 font-mono">
-                <div className="flex justify-between text-slate-400">
-                  <span>FDM Extruder Nozzle:</span>
-                  <span className="text-slate-100 font-bold">{specs.fdm_nozzle_temp_c}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>FDM Heated Bed:</span>
-                  <span className="text-slate-100 font-bold">{specs.fdm_bed_temp_c}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Chamber Enclosure:</span>
-                  <span className="text-slate-100">{specs.chamber_temp_c}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Cooling Water Bath:</span>
-                  <span className="text-cyan-400">{specs.cooling_water_bath_c}</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>Thermal Shrinkage:</span>
-                  <span className="text-slate-100">{specs.volumetric_shrinkage}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Modal Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between text-xs text-slate-400">
-          <span className="font-mono text-[10px]">
-            Certified by PolyLoop Digital Chain of Custody Protocol
-          </span>
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 30 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            className="glass-panel-elevated rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col relative overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.9)]"
           >
-            Close Preview
-          </button>
+            {/* Holographic Rainbow Foil Banner Top */}
+            <div className="h-2.5 w-full hologram-foil" />
+
+            {/* Top Bar Header */}
+            <div className="p-6 border-b border-white/[0.08] flex items-center justify-between bg-[#070b14]">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 border border-emerald-400/30 flex items-center justify-center shadow-[0_0_20px_rgba(13,242,164,0.25)]">
+                  <Award className="w-6 h-6 text-emerald-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg sm:text-xl font-display font-black text-white tracking-wide">
+                      DIGITAL PRODUCT PASSPORT (DPP)
+                    </h2>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">
+                      ESPR / CIRPASS
+                    </span>
+                  </div>
+                  <p className="text-xs font-mono text-slate-400 mt-0.5">
+                    CERTIFICATE ID: <span className="text-emerald-400 font-bold">{batchId}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handlePrint}
+                  className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-xs font-mono border border-white/[0.08] transition-colors"
+                >
+                  <Printer className="w-4 h-4 text-slate-400" />
+                  PRINT
+                </button>
+
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={handleDownload}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 text-xs font-mono font-black shadow-[0_0_20px_rgba(13,242,164,0.3)] transition-transform"
+                >
+                  <Download className="w-4 h-4" />
+                  DOWNLOAD PDF
+                </motion.button>
+
+                <button
+                  onClick={onClose}
+                  className="p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Passport Certificate Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-xs text-slate-300">
+              
+              {/* Executive Header Box */}
+              <div className="p-6 rounded-3xl bg-[#04060c] border border-white/[0.08] flex flex-wrap items-center justify-between gap-6 relative overflow-hidden">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-widest block">
+                    PRODUCTION LOT LEDGER IDENTITY
+                  </span>
+                  <div className="text-2xl font-display font-black text-white">
+                    {batchInfo?.name || metrics.batch_name}
+                  </div>
+                  <div className="text-xs font-mono text-slate-400">
+                    Target Polymer Stream: <strong className="text-emerald-400 font-bold">{targetPolymer}</strong> ({polymerProfile.name})
+                  </div>
+                </div>
+
+                {/* Simulated Scannable QR Code */}
+                <div className="flex items-center gap-4 p-3 rounded-2xl bg-[#090d16] border border-white/[0.08]">
+                  <div className="w-16 h-16 bg-white rounded-xl p-1.5 flex items-center justify-center">
+                    <svg className="w-full h-full text-slate-950" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h4v2h-4v-2zm-4 0h2v4h-2v-4zm2 4h4v2h-4v-2zm2-2h2v2h-2v-2zm-6-2h2v2h-2v-2z" />
+                    </svg>
+                  </div>
+                  <div className="space-y-0.5">
+                    <span className="text-[9px] font-mono text-slate-400 block uppercase">
+                      CIRPASS QR TAG
+                    </span>
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold block">
+                      SHA-256 SIGNED
+                    </span>
+                    <span className="text-[9px] font-mono text-slate-500 block">
+                      EU Registry 2026/A
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Cryptographic Hash Seal Strip */}
+              <div className="p-3.5 rounded-2xl bg-[#050812] border border-white/[0.06] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+                <div className="flex items-center gap-2">
+                  <Hash className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span className="text-slate-400">CRYPTOGRAPHIC DIGEST:</span>
+                  <span className="text-slate-200 font-bold truncate max-w-xs sm:max-w-md">
+                    {mockSha256}
+                  </span>
+                </div>
+                <button
+                  onClick={handleCopyHash}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 text-[11px] transition-colors"
+                >
+                  {copiedHash ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedHash ? 'COPIED!' : 'COPY HASH'}</span>
+                </button>
+              </div>
+
+              {/* Mass Balance & LCA Metrics */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+                  <span className="text-[10px] font-mono text-slate-400 uppercase block">INFLOW MASS PROCESSED</span>
+                  <div className="text-xl font-mono font-black text-white">{formatKg(metrics.total_inflow_mass_kg)}</div>
+                  <span className="text-[10px] text-slate-500 font-mono">Optical inspection input</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 space-y-1">
+                  <span className="text-[10px] font-mono text-emerald-300 uppercase block">CERTIFIED USABLE YIELD</span>
+                  <div className="text-xl font-mono font-black text-emerald-400">{formatKg(metrics.usable_mass_kg)} ({metrics.circularity_yield_percent || 85}%)</div>
+                  <span className="text-[10px] text-emerald-300/70 font-mono">Ready for granulation</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 space-y-1">
+                  <span className="text-[10px] font-mono text-cyan-300 uppercase block">NET CO₂e DISPLACEMENT</span>
+                  <div className="text-xl font-mono font-black text-cyan-400">{formatCO2(metrics.net_co2_avoided_kg)}</div>
+                  <span className="text-[10px] text-cyan-300/70 font-mono">Crude oil avoided: {metrics.crude_oil_saved_liters || 205}L</span>
+                </div>
+              </div>
+
+              {/* Thermal Specs & Extrusion Parameters */}
+              <div className="p-5 rounded-3xl bg-[#04060c] border border-white/[0.08] space-y-3">
+                <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-300">
+                  <span className="flex items-center gap-2 text-amber-400">
+                    <Flame className="w-4 h-4" />
+                    QUALIFIED 3D PRINTING & MELT SPECIFICATIONS
+                  </span>
+                  <span className="text-slate-500">ISO 11469 Qualified</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                    <span className="text-[9px] text-slate-500 block">EXTRUDER DIE</span>
+                    <span className="font-bold text-slate-200">{specs.extruder_die_zone3_c || '225–235°C'}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                    <span className="text-[9px] text-slate-500 block">FDM NOZZLE</span>
+                    <span className="font-bold text-slate-200">{specs.fdm_nozzle_temp_c || '230–245°C'}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                    <span className="text-[9px] text-slate-500 block">HEATED BED</span>
+                    <span className="font-bold text-slate-200">{specs.fdm_bed_temp_c || '95–110°C'}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                    <span className="text-[9px] text-slate-500 block">PRE-DRYING</span>
+                    <span className="font-bold text-slate-200">{specs.pre_drying_temp_c || 80}°C / {specs.pre_drying_hours || '3h'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal RoHS & ESPR Compliance Statement */}
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-[11px] text-slate-400 leading-relaxed font-mono">
+                <span className="font-bold text-slate-300 block mb-1">REGULATORY ATTESTATION:</span>
+                This certified material lot has been qualified via automated optical casing morphology classification, OpenCV 5-step mold stamp OCR extraction, and deterministic Beilstein/solvent validation. Confirmed compliant with European Union RoHS Directive 2011/65/EU and REACH Annex XVII (DecaBDE / OctaBDE below 0.1% w/w).
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

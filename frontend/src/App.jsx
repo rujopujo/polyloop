@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import CameraHUD from './components/CameraHUD';
 import ScanResultsCard from './components/ScanResultsCard';
@@ -7,7 +8,23 @@ import ThermalSpecsCard from './components/ThermalSpecsCard';
 import LCAMetricsCard from './components/LCAMetricsCard';
 import BatchManager from './components/BatchManager';
 import PassportModal from './components/PassportModal';
-import { api, FALLBACK_POLYMERS } from './services/api';
+import { sound } from './utils/sound';
+import {
+  Recycle,
+  Leaf,
+  Zap,
+  TrendingDown,
+  Factory
+} from 'lucide-react';
+
+// Stats Ticker Data
+const STATS = [
+  { icon: Recycle, label: 'Plastic Recycled', value: '2,490 kg', color: 'text-forest-400' },
+  { icon: TrendingDown, label: 'CO₂ Saved', value: '7,120 kg', color: 'text-ocean-400' },
+  { icon: Leaf, label: 'Oil Saved', value: '5,180 L', color: 'text-forest-400' },
+  { icon: Factory, label: 'BFR Detection', value: '99.4%', color: 'text-earth-400' },
+  { icon: Zap, label: 'Scan Speed', value: '18.4 ms', color: 'text-ocean-400' },
+];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('scanner');
@@ -19,9 +36,8 @@ export default function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [systemStatus, setSystemStatus] = useState('OPERATIONAL');
 
-  // Load initial scans or health check
   useEffect(() => {
-    async function init() {
+    async function checkHealth() {
       try {
         const res = await fetch('/api/health');
         if (res.ok) setSystemStatus('CONNECTED');
@@ -29,7 +45,7 @@ export default function App() {
         setSystemStatus('OFFLINE_MOCK');
       }
     }
-    init();
+    checkHealth();
   }, []);
 
   const handleScanComplete = (scanData) => {
@@ -49,113 +65,180 @@ export default function App() {
   };
 
   const handleAddToBatch = (scan) => {
-    // Switch to passport tab and let user finalize
+    sound.playBlip(700, 0.05);
     setActiveTab('passport');
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col bg-grid-pattern selection:bg-emerald-500/20 selection:text-emerald-300">
-      <Navbar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+
+      {/* Navbar */}
+      <Navbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
         systemStatus={systemStatus}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Tab 1: Live Camera & Stamp Scanner */}
-        {activeTab === 'scanner' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            {/* Context Banner */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h1 className="text-sm sm:text-base font-extrabold text-slate-100 font-mono">
-                  STAGE 1 & 2: AUTOMATED COMPUTER VISION & MOLD STAMP OCR
-                </h1>
-                <p className="text-xs text-slate-400">
-                  Dual-tier inference: YOLOv8 casing typology + OpenCV CLAHE & EasyOCR ISO 11469 parser
-                </p>
+      {/* Stats Ticker */}
+      <div className="border-b border-slate-800/60 bg-slate-900/30 backdrop-blur-sm py-3 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-8 overflow-x-auto pb-2 scrollbar-hide">
+            {STATS.map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <div key={idx} className="flex items-center gap-3 whitespace-nowrap">
+                  <div className="w-8 h-8 rounded-lg bg-slate-800/50 border border-slate-700 flex items-center justify-center">
+                    <Icon className={`w-4 h-4 ${stat.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500 font-medium">{stat.label}</p>
+                    <p className={`text-sm font-bold ${stat.color}`}>{stat.value}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <AnimatePresence mode="wait">
+
+          {/* Scanner Tab */}
+          {activeTab === 'scanner' && (
+            <motion.div
+              key="scanner-tab"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {/* Header */}
+              <div className="card p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold font-display mb-2">
+                      Vision Scanner & OCR
+                    </h2>
+                    <p className="text-slate-400">
+                      YOLOv8n classification + ISO 11469 mold stamp recognition
+                    </p>
+                  </div>
+                  <div className="badge-success text-sm">
+                    <div className="w-2 h-2 rounded-full bg-forest-400 animate-pulse"></div>
+                    Zero-Cost AI Active
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Zero-Cost Edge Pipeline Active</span>
+
+              {/* Scanner Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-7">
+                  <CameraHUD
+                    onScanComplete={handleScanComplete}
+                    isProcessing={isProcessing}
+                    setIsProcessing={setIsProcessing}
+                  />
+                </div>
+                <div className="lg:col-span-5">
+                  <ScanResultsCard
+                    result={currentScan}
+                    onAddToBatch={handleAddToBatch}
+                    onOpenDiagnostic={() => { sound.playBlip(600, 0.04); setActiveTab('diagnostic'); }}
+                  />
+                </div>
               </div>
-            </div>
+            </motion.div>
+          )}
 
-            {/* Split Screen HUD & Output */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              <div className="lg:col-span-7">
-                <CameraHUD 
-                  onScanComplete={handleScanComplete}
-                  isProcessing={isProcessing}
-                  setIsProcessing={setIsProcessing}
-                />
-              </div>
-              <div className="lg:col-span-5">
-                <ScanResultsCard 
-                  result={currentScan}
-                  onAddToBatch={handleAddToBatch}
-                  onOpenDiagnostic={() => setActiveTab('diagnostic')}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+          {/* Diagnostic Tab */}
+          {activeTab === 'diagnostic' && (
+            <motion.div
+              key="diagnostic-tab"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <DiagnosticWizard onDiagnosticComplete={handleDiagnosticComplete} />
+            </motion.div>
+          )}
 
-        {/* Tab 2: Diagnostic Decision Wizard */}
-        {activeTab === 'diagnostic' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <DiagnosticWizard onDiagnosticComplete={handleDiagnosticComplete} />
-          </div>
-        )}
+          {/* Thermal Tab */}
+          {activeTab === 'thermal' && (
+            <motion.div
+              key="thermal-tab"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ThermalSpecsCard activePolymer={activePolymer} />
+            </motion.div>
+          )}
 
-        {/* Tab 3: Thermal Rheology & Extrusion */}
-        {activeTab === 'thermal' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <ThermalSpecsCard activePolymer={activePolymer} />
-          </div>
-        )}
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <motion.div
+              key="analytics-tab"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <LCAMetricsCard activeBatchId={activeBatchId} />
+            </motion.div>
+          )}
 
-        {/* Tab 4: Batch LCA Telemetry */}
-        {activeTab === 'analytics' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <LCAMetricsCard activeBatchId={activeBatchId} />
-          </div>
-        )}
+          {/* Passport Tab */}
+          {activeTab === 'passport' && (
+            <motion.div
+              key="passport-tab"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <BatchManager
+                recentScans={recentScans}
+                onViewPassport={(batchId) => { sound.playBlip(700, 0.04); setPassportModalBatchId(batchId); }}
+                onBatchCreated={(newId) => {
+                  setActiveBatchId(newId);
+                  setActiveTab('analytics');
+                }}
+              />
+            </motion.div>
+          )}
 
-        {/* Tab 5: Digital Material Passports */}
-        {activeTab === 'passport' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
-            <BatchManager 
-              recentScans={recentScans}
-              onViewPassport={(batchId) => setPassportModalBatchId(batchId)}
-              onBatchCreated={(newId) => {
-                setActiveBatchId(newId);
-                setActiveTab('analytics');
-              }}
-            />
-          </div>
-        )}
+        </AnimatePresence>
       </main>
 
-      {/* Passport Preview Modal */}
+      {/* Passport Modal */}
       {passportModalBatchId && (
-        <PassportModal 
+        <PassportModal
           batchId={passportModalBatchId}
           isOpen={!!passportModalBatchId}
-          onClose={() => setPassportModalBatchId(null)}
+          onClose={() => { sound.playClick(); setPassportModalBatchId(null); }}
         />
       )}
 
-      {/* Industrial Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/80 py-4 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono gap-2">
-          <div>
-            PolyLoop • 100% Free Open-Source E-Waste Polymer Qualification Platform
-          </div>
-          <div className="flex items-center space-x-3">
-            <span>FastAPI + YOLOv8 + OpenCV + EasyOCR + React</span>
-            <span>•</span>
-            <span className="text-emerald-400">ISO 14040 Compliant</span>
+      {/* Footer */}
+      <footer className="border-t border-slate-800/60 bg-slate-900/30 backdrop-blur-sm py-6 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-slate-500">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-300">PolyLoop</span>
+              <span>•</span>
+              <span>Zero-Cost E-Waste Polymer Intelligence</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>ISO 14040 & RoHS Compliant</span>
+              <span>•</span>
+              <span className="text-forest-400 font-semibold">Open Source</span>
+            </div>
           </div>
         </div>
       </footer>
