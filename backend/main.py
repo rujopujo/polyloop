@@ -4,29 +4,30 @@ Serves REST API for Computer Vision, OpenCV pipeline, BFR hazard screening,
 Physical Diagnostic Wizard, Thermal specs, LCA calculations, and ReportLab PDF passport.
 Also serves the Frontend Web Application with static sample images.
 """
-import os
-import io
-import re
-import uuid
 import base64
+import io
+import os
+import re
 import time
-from typing import Optional, Dict, Any
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import Response, JSONResponse, FileResponse
-from pydantic import BaseModel
+import uuid
+from typing import Any, Dict, Optional
+
 import cv2
 import numpy as np
-from PIL import Image
+from core.bfr_engine import evaluate_bfr_hazard
+from core.lca_engine import calculate_batch_lca, calculate_item_lca
+from core.passport_generator import generate_passport_pdf
 
 # Import existing core domain engines
-from core.polymer_kb import POLYMERS, APPLIANCE_PROFILES
-from core.vision_engine import run_opencv_pipeline, parse_iso_tokens, detect_sample_casing_metadata
-from core.bfr_engine import evaluate_bfr_hazard
+from core.polymer_kb import APPLIANCE_PROFILES, POLYMERS
 from core.thermal_calculator import get_thermal_specs
-from core.lca_engine import calculate_item_lca, calculate_batch_lca
-from core.passport_generator import generate_passport_pdf
+from core.vision_engine import detect_sample_casing_metadata, parse_iso_tokens, run_opencv_pipeline
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse, Response
+from fastapi.staticfiles import StaticFiles
+from PIL import Image
+from pydantic import BaseModel
 
 app = FastAPI(
     title="PolyLoop API Engine",
@@ -250,13 +251,13 @@ async def upload_custom_image(file: UploadFile = File(...)):
     """Allows uploading new user-provided e-waste images directly into the local site."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="Empty filename")
-    
+
     clean_name = re.sub(r'[^a-zA-Z0-9_\-\.]', '_', file.filename)
     dest_path = os.path.join(SAMPLE_DIR, clean_name)
     content = await file.read()
     with open(dest_path, "wb") as f:
         f.write(content)
-        
+
     return {
         "status": "success",
         "filename": clean_name,
