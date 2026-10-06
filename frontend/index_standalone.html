@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PolyLoop // Zero-Cost E-Waste Plastic Identification & Upcycling Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">PolyLoop</h1>
+          <p class="brand-subtitle">Circular Polymer Identification & Upcycling Suite</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" data-tab="tab-scanner">
+          <span class="tab-icon">📸</span> Vision Scanner
+        </button>
+        <button class="nav-tab" data-tab="tab-diagnostic">
+          <span class="tab-icon">🧪</span> Sink-Float Wizard
+        </button>
+        <button class="nav-tab" data-tab="tab-thermal">
+          <span class="tab-icon">⚙️</span> Thermal & Slicing
+        </button>
+        <button class="nav-tab" data-tab="tab-lca">
+          <span class="tab-icon">📊</span> LCA Telemetry
+        </button>
+        <button class="nav-tab" data-tab="tab-gallery">
+          <span class="tab-icon">🖼️</span> iFixit Gallery
+        </button>
+      </nav>
+
+      <!-- Active Batch Telemetry Badge -->
+      <div class="batch-badge">
+        <div class="batch-status-dot"></div>
+        <div class="batch-text">
+          <span class="batch-label">BATCH SESSION</span>
+          <span class="batch-value" id="headerBatchYield">94.2 kg Usable</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- ============================================================ -->
+    <!-- TAB 1: VISION & MOLD STAMP SCANNER                           -->
+    <!-- ============================================================ -->
+    <section class="tab-panel active" id="tab-scanner">
+      <div class="panel-header animate-fade-in">
+        <div class="tag-pill">ISO 11469 / ISO 1043 OPTICAL AUDIT</div>
+        <h2>5-Stage Optical Contrast Enhancement & BFR Hazard Scanner</h2>
+        <p>Enhancing low-profile mold stamp reliefs on dark, textured post-consumer casings with edge-preserving bilateral denoising and adaptive Otsu binarization.</p>
+      </div>
+
+      <div class="scanner-grid">
+        <!-- Left: Image Selection & Viewfinder -->
+        <div class="glass-card card-viewfinder animate-slide-up">
+          <div class="card-header-bar">
+            <h3>1. Target E-Waste Casing</h3>
+            <span class="mode-badge" id="sourceBadge">iFixit Studio Sample</span>
+          </div>
+
+          <!-- Camera / Viewfinder Box -->
+          <div class="viewfinder-container">
+            <div class="reticle-overlay">
+              <div class="reticle-corner top-left"></div>
+              <div class="reticle-corner top-right"></div>
+              <div class="reticle-corner bottom-left"></div>
+              <div class="reticle-corner bottom-right"></div>
+              <div class="laser-scanner" id="laserBeam"></div>
+              <div class="reticle-center"></div>
+            </div>
+            <img id="activeScanImage" src="/sample_images/ifixit_crt_rear_housing.jpg" alt="Active E-Waste Casing" class="scan-target-img">
+          </div>
+
+          <!-- Quick Selector Carousel -->
+          <div class="source-selector-bar">
+            <label for="sampleSelect" class="input-label">Select Casing Sample:</label>
+            <div class="select-wrapper">
+              <select id="sampleSelect" class="custom-select">
+                <option value="ifixit_crt_rear_housing.jpg">📺 Vintage CRT Rear Shell (Pre-2006, BFR DecaBDE Hazard)</option>
+                <option value="ifixit_casing_mold_relief.jpg">🔍 Macro: Mold Tooling Relieves & Part Autographs</option>
+                <option value="ifixit_printer_side_panel.jpg">🖨️ HP LaserJet 1320 Outer Side Door (HIPS)</option>
+                <option value="ifixit_printer_rear_vents.jpg">🖨️ Laser Printer Rear Shell with Slotted Vents</option>
+                <option value="ifixit_thinkpad_bottom_cover.jpg">💻 IBM ThinkPad T42 Bottom Shell (>PC+ABS< Alloy)</option>
+                <option value="ifixit_thinkpad_memory_door.jpg">💻 ThinkPad RAM Access Hatch (>PC+ABS<)</option>
+                <option value="ifixit_xbox360_abs_shell.jpg">🎮 Xbox 360 Bottom Outer ABS Plastic Shell</option>
+                <option value="ifixit_xbox360_faceplate.jpg">🎮 Xbox 360 Front Bezel Faceplate (Neat ABS)</option>
+                <option value="ifixit_ps4_chassis_casing.jpg">🎮 PlayStation 4 Geometric PC-ABS Body</option>
+                <option value="ifixit_keyboard_bottom_shell.jpg">⌨️ Keyboard Underside Shell (>ABS<)</option>
+                <option value="ifixit_router_vented_casing.jpg">📡 Netgear Router Vented Bottom Shell (ABS)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Upload Dropzone -->
+          <div class="dropzone-box" id="dropZone">
+            <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <div class="dropzone-text">
+              <strong>Drag & Drop Custom E-Waste Photo</strong> or <span>browse computer</span>
+            </div>
+            <input type="file" id="fileUpload" accept="image/*" class="file-input-hidden">
+          </div>
+        </div>
+
+        <!-- Right: Detection Telemetry & BFR Risk -->
+        <div class="glass-card card-telemetry animate-slide-up delay-1">
+          <div class="card-header-bar">
+            <h3>2. Resin Identification & Regulatory Screening</h3>
+            <span class="pill-badge" id="statusBadge">ANALYZING</span>
+          </div>
+
+          <!-- Main Polymer ID Card -->
+          <div class="telemetry-hero">
+            <div class="polymer-highlight">
+              <span class="poly-abbr" id="detectedPolymerName">ABS-FR(40)</span>
+              <span class="poly-fullname" id="detectedPolymerFull">Brominated Flame-Retardant Styrenic</span>
+            </div>
+            <div class="stamp-pill">
+              <span class="stamp-lbl">ISO 11469 STAMP</span>
+              <code id="detectedStampCode">&gt;ABS-FR(40)&lt;</code>
+            </div>
+          </div>
+
+          <!-- BFR Risk Meter -->
+          <div class="risk-gauge-container">
+            <div class="risk-gauge-header">
+              <span>BFR Hazard Probability</span>
+              <strong id="bfrRiskValue">85.0%</strong>
+            </div>
+            <div class="risk-progress-bar">
+              <div class="risk-progress-fill" id="bfrProgressBar" style="width: 85%;"></div>
+            </div>
+            <div class="risk-limits">
+              <span>0% Low</span>
+              <span class="rohs-limit">RoHS Cap: 0.1%</span>
+              <span>100% Critical</span>
+            </div>
+          </div>
+
+          <!-- Compliance Badges -->
+          <div class="compliance-row">
+            <div class="comp-card" id="rohsCard">
+              <span class="comp-icon" id="rohsIcon">⚠️</span>
+              <div>
+                <strong>EU RoHS (2011/65/EU)</strong>
+                <p id="rohsStatus">NON-COMPLIANT</p>
+              </div>
+            </div>
+            <div class="comp-card" id="popsCard">
+              <span class="comp-icon" id="popsIcon">⛔</span>
+              <div>
+                <strong>EU POPs (&lt;500 ppm)</strong>
+                <p id="popsStatus">RESTRICTED</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Protocol -->
+          <div class="protocol-box" id="protocolBox">
+            <h4 id="protocolHeading">CRITICAL BFR CONTAMINATION ALERT</h4>
+            <p id="protocolDescription">
+              Casing correlates with heavy DecaBDE/OctaBDE flame retardants. Re-melting at &gt;210°C will release toxic polybrominated dioxins. Strictly prohibit from mechanical extrusion; route to WEEE hazardous incineration.
+            </p>
+          </div>
+
+          <!-- Push to Batch Button -->
+          <div class="action-footer">
+            <div class="mass-input-group">
+              <label for="casingMass">Mass (kg):</label>
+              <input type="number" id="casingMass" value="1.8" step="0.1" min="0.1" class="number-input">
+            </div>
+            <button class="btn btn-primary" id="btnAddToBatch">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Push to Active Batch
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5-Stage OpenCV Visualizer Strip -->
+      <div class="glass-card card-pipeline animate-slide-up delay-2">
+        <div class="pipeline-header">
+          <h3>5-Stage OpenCV Mold Stamp Contrast Enhancement Visualizer</h3>
+          <p>Click any stage to inspect the intermediate spatial transformations</p>
+        </div>
+
+        <div class="pipeline-stages-grid">
+          <div class="stage-card" data-stage="1">
+            <div class="stage-tag">STAGE 1</div>
+            <div class="stage-img-wrap">
+              <img id="imgStage1" src="" alt="Stage 1: Input ROI">
+            </div>
+            <div class="stage-meta">
+              <strong>Input Crop</strong>
+              <span>Normalized ROI</span>
+            </div>
+          </div>
+
+          <div class="stage-arrow">→</div>
+
+          <div class="stage-card" data-stage="2">
+            <div class="stage-tag">STAGE 2</div>
+            <div class="stage-img-wrap">
+              <img id="imgStage2" src="" alt="Stage 2: CLAHE Equalized">
+            </div>
+            <div class="stage-meta">
+              <strong>CLAHE Equalization</strong>
+              <span>Contrast Adaptive</span>
+            </div>
+          </div>
+
+          <div class="stage-arrow">→</div>
+
+          <div class="stage-card" data-stage="3">
+            <div class="stage-tag">STAGE 3</div>
+            <div class="stage-img-wrap">
+              <img id="imgStage3" src="" alt="Stage 3: Bilateral Denoising">
+            </div>
+            <div class="stage-meta">
+              <strong>Bilateral Filter</strong>
+              <span>Edge-Preserving Blur</span>
+            </div>
+          </div>
+
+          <div class="stage-arrow">→</div>
+
+          <div class="stage-card" data-stage="4">
+            <div class="stage-tag">STAGE 4</div>
+            <div class="stage-img-wrap">
+              <img id="imgStage4" src="" alt="Stage 4: Morphological Gradient">
+            </div>
+            <div class="stage-meta">
+              <strong>Morph Gradient</strong>
+              <span>Contour Isolation</span>
+            </div>
+          </div>
+
+          <div class="stage-arrow">→</div>
+
+          <div class="stage-card" data-stage="5">
+            <div class="stage-tag">STAGE 5</div>
+            <div class="stage-img-wrap">
+              <img id="imgStage5" src="" alt="Stage 5: Otsu Thresholding">
+            </div>
+            <div class="stage-meta">
+              <strong>Otsu Threshold</strong>
+              <span>Binary Character Mask</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 2: DIAGNOSTIC SINK-FLOAT WIZARD                          -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-diagnostic">
+      <div class="panel-header animate-fade-in">
+        <div class="tag-pill">PHYSICAL & CHEMICAL DIAGNOSTIC TREE</div>
+        <h2>Interactive Sink-Float Stratification & Solvent Reagent Wizard</h2>
+        <p>When e-waste casings have worn-off stamps or granular scrap forms, identify resin matrices through stepwise density stratification and selective Hansen solvent reactions.</p>
+      </div>
+
+      <div class="diagnostic-grid">
+        <!-- Interactive Question Flow -->
+        <div class="glass-card card-wizard-questions">
+          <h3>Stepwise Test Observations</h3>
+
+          <div class="wizard-question-group">
+            <label class="q-label">1. Tap Water Density Test (ρ = 1.00 g/cm³):</label>
+            <div class="radio-pill-group" id="groupWater">
+              <button class="pill-option active" data-val="sinks">Sinks (Styrenic / Engineering Resin)</button>
+              <button class="pill-option" data-val="floats">Floats Cleanly (Polyolefins PP/PE)</button>
+            </div>
+          </div>
+
+          <div class="wizard-question-group">
+            <label class="q-label">2. 10% Saline Solution Test (ρ = 1.07 g/cm³):</label>
+            <div class="radio-pill-group" id="groupSaline">
+              <button class="pill-option active" data-val="sinks">Sinks (ABS / PC / PC-ABS / BFR)</button>
+              <button class="pill-option" data-val="floats">Floats (HIPS Candidate)</button>
+            </div>
+          </div>
+
+          <div class="wizard-question-group">
+            <label class="q-label">3. Dense Brine Test (ρ = 1.15 g/cm³):</label>
+            <div class="radio-pill-group" id="groupDense">
+              <button class="pill-option active" data-val="floats">Floats (Neat ABS)</button>
+              <button class="pill-option" data-val="sinks">Sinks Rapidly (Polycarbonate or BFR)</button>
+              <button class="pill-option" data-val="neutral">Neutral Buoyancy (PC-ABS Alloy)</button>
+            </div>
+          </div>
+
+          <div class="wizard-question-group">
+            <label class="q-label">4. Acetone Drop Spot Test (30 seconds):</label>
+            <div class="radio-pill-group" id="groupAcetone">
+              <button class="pill-option active" data-val="paste">Dissolves into tacky paste (ABS)</button>
+              <button class="pill-option" data-val="swell">Swells slowly and softens (HIPS)</button>
+              <button class="pill-option" data-val="resistant">Highly resistant; faint haze (PC)</button>
+            </div>
+          </div>
+
+          <div class="wizard-question-group">
+            <label class="q-label">5. d-Limonene (Citrus Terpene) Spot Test:</label>
+            <div class="radio-pill-group" id="groupLimonene">
+              <button class="pill-option active" data-val="inert">Chemically inert; zero dissolution</button>
+              <button class="pill-option" data-val="gel">Dissolves completely into clear gel (HIPS)</button>
+            </div>
+          </div>
+
+          <div class="wizard-question-group">
+            <label class="q-label">6. Copper Wire Flame Test (Beilstein Halogen Test):</label>
+            <div class="radio-pill-group" id="groupBeilstein">
+              <button class="pill-option active" data-val="negative">Negative: Normal orange flame</button>
+              <button class="pill-option danger" data-val="positive">POSITIVE: Bright emerald green flame! (BFR/PVC)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Animated Tank Simulator -->
+        <div class="glass-card card-tank-sim">
+          <h3>Fluid Density Tank Simulator</h3>
+          <p class="tank-subtitle">Dynamic buoyancy simulation based on chosen liquid density</p>
+
+          <div class="fluid-tank-visual" id="tankVisual">
+            <div class="tank-liquid-surface"></div>
+            <div class="tank-bubble b1"></div>
+            <div class="tank-bubble b2"></div>
+            <div class="tank-bubble b3"></div>
+            <!-- Animated plastic chip -->
+            <div class="plastic-chip-sim" id="plasticChip">
+              <span id="chipLabel">ABS</span>
+            </div>
+            <div class="tank-liquid-label" id="tankLiquidLabel">Dense Brine (ρ = 1.15 g/cm³)</div>
+          </div>
+
+          <!-- Diagnostic Results Box -->
+          <div class="diag-result-card">
+            <div class="diag-result-header">
+              <span>PREDICTED POLYMER MATRIX</span>
+              <strong id="diagConfidence">92.0% Confidence</strong>
+            </div>
+            <h2 id="diagPredictedPolymer">ABS</h2>
+            <ul class="diag-notes-list" id="diagNotesList">
+              <li>Floats in dense brine (ρ &lt; 1.15) and dissolves into tacky paste in acetone.</li>
+            </ul>
+            <div class="diag-action-bar">
+              <input type="number" id="diagScrapMass" value="2.5" step="0.5" min="0.1" class="number-input">
+              <button class="btn btn-primary" id="btnPushDiagToBatch">Push Scrap to Batch</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 3: THERMAL RHEOLOGY & 3D PRINTING SPECS                  -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-thermal">
+      <div class="panel-header animate-fade-in">
+        <div class="tag-pill">CLOSED-LOOP THERMAL SPECIFICATIONS</div>
+        <h2>Extrusion Rheology & 3D Printing Filament Calculator</h2>
+        <p>Verified mechanical upcycling boundaries for converting regrind into commercial 1.75 mm FDM filament.</p>
+      </div>
+
+      <!-- Polymer Selector Bar -->
+      <div class="polymer-pills-selector">
+        <button class="poly-selector-btn active" data-poly="ABS">ABS</button>
+        <button class="poly-selector-btn" data-poly="PC-ABS">PC-ABS Alloy</button>
+        <button class="poly-selector-btn" data-poly="HIPS">HIPS</button>
+        <button class="poly-selector-btn" data-poly="PC">Polycarbonate (PC)</button>
+        <button class="poly-selector-btn" data-poly="PP">Polypropylene (PP)</button>
+        <button class="poly-selector-btn danger" data-poly="BFR_CONTAMINATED">BFR Hazard</button>
+      </div>
+
+      <div class="thermal-cards-grid">
+        <!-- Pre-Drying Card -->
+        <div class="glass-card card-thermal animate-slide-up">
+          <div class="thermal-card-top">
+            <div class="thermal-icon">🔥</div>
+            <div>
+              <h3>1. Pre-Drying Regimen</h3>
+              <p class="thermal-sub">Hydrolytic scission prevention</p>
+            </div>
+          </div>
+          <div class="spec-row">
+            <span>Drying Oven Temp:</span>
+            <strong id="dryTemp">80°C (176°F)</strong>
+          </div>
+          <div class="spec-row">
+            <span>Minimum Residence Time:</span>
+            <strong id="dryTime">3 - 4 hrs</strong>
+          </div>
+          <div class="spec-row">
+            <span>Moisture Tolerance:</span>
+            <strong id="dryMoisture">&lt; 500 ppm (0.05%)</strong>
+          </div>
+          <div class="thermal-warning-box">
+            <strong>Extrusion Failure Mode if Undried:</strong>
+            <p id="dryFailure">Steam bubbling at melt die, rough matte finish, severe layer shear weakness.</p>
+          </div>
+        </div>
+
+        <!-- Single-Screw Extruder 3-Zone Card -->
+        <div class="glass-card card-thermal animate-slide-up delay-1">
+          <div class="thermal-card-top">
+            <div class="thermal-icon">🌀</div>
+            <div>
+              <h3>2. Extruder Temperature Zones</h3>
+              <p class="thermal-sub">Single-screw 3:1 L/D compression</p>
+            </div>
+          </div>
+
+          <!-- Animated Extruder Schematic -->
+          <div class="extruder-visual">
+            <div class="extruder-zone z1">
+              <span class="ez-label">Feed Z1</span>
+              <span class="ez-temp" id="extZ1">185°C - 195°C</span>
+            </div>
+            <div class="extruder-zone z2">
+              <span class="ez-label">Transition Z2</span>
+              <span class="ez-temp" id="extZ2">215°C - 225°C</span>
+            </div>
+            <div class="extruder-zone z3">
+              <span class="ez-label">Die Z3</span>
+              <span class="ez-temp" id="extZ3">225°C - 235°C</span>
+            </div>
+          </div>
+
+          <div class="spec-row">
+            <span>Water Quench Bath:</span>
+            <strong id="extWater">50°C - 60°C (Warm bath)</strong>
+          </div>
+          <div class="spec-row">
+            <span>Nominal Filament Target:</span>
+            <strong>1.75 mm ± 0.05 mm</strong>
+          </div>
+        </div>
+
+        <!-- 3D Printer FDM Slicer Settings -->
+        <div class="glass-card card-thermal animate-slide-up delay-2">
+          <div class="thermal-card-top">
+            <div class="thermal-icon">🖨️</div>
+            <div>
+              <h3>3. FDM 3D Slicer Profile</h3>
+              <p class="thermal-sub">Post-consumer filament parameters</p>
+            </div>
+          </div>
+          <div class="spec-row">
+            <span>Nozzle Hotend Temp:</span>
+            <strong id="fdmNozzle">230°C - 245°C</strong>
+          </div>
+          <div class="spec-row">
+            <span>Heated Bed Temp:</span>
+            <strong id="fdmBed">95°C - 110°C</strong>
+          </div>
+          <div class="spec-row">
+            <span>Build Plate Surface:</span>
+            <strong id="fdmSurface">Smooth PEI + Dimafix</strong>
+          </div>
+          <div class="spec-row">
+            <span>Chamber Enclosure:</span>
+            <strong id="fdmChamber">Passive (40°C - 50°C)</strong>
+          </div>
+          <div class="spec-row">
+            <span>Part Cooling Fan:</span>
+            <strong id="fdmFan">0% - 15%</strong>
+          </div>
+          <div class="spec-row">
+            <span>Shrinkage Allowance:</span>
+            <strong id="fdmShrink">0.4% - 0.7%</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 4: BATCH LCA CARBON TELEMETRY                            -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-lca">
+      <div class="panel-header animate-fade-in">
+        <div class="tag-pill">ISO 14040/14044 CIRCULAR METRICS</div>
+        <h2>Life Cycle Assessment & Net Carbon Avoidance Engine</h2>
+        <p>Quantifying greenhouse gas avoidance and fossil fuel displacement benchmarked against primary petrochemical virgin resin synthesis.</p>
+      </div>
+
+      <!-- KPI Stat Cards Row -->
+      <div class="kpi-cards-grid">
+        <div class="kpi-card">
+          <span class="kpi-label">NET GHG AVOIDED (ΔE)</span>
+          <div class="kpi-num" id="kpiCo2">+284.7 <small>kg CO₂e</small></div>
+          <div class="kpi-sub">ISO 14040 verified avoidance</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">CRUDE OIL PREVENTED</span>
+          <div class="kpi-num" id="kpiOil">188.5 <small>Liters</small></div>
+          <div class="kpi-sub">Fossil petrochemical offset</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">COAL COMBUSTION OFFSET</span>
+          <div class="kpi-num" id="kpiCoal">139.5 <small>kg</small></div>
+          <div class="kpi-sub">Grid emission displacement</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">PASSENGER CAR EQUIV.</span>
+          <div class="kpi-num" id="kpiCar">1,159 <small>km</small></div>
+          <div class="kpi-sub">Standard ICE passenger car</div>
+        </div>
+      </div>
+
+      <!-- Batch Mass Simulator & Passport Trigger -->
+      <div class="lca-sim-grid">
+        <div class="glass-card card-lca-controls">
+          <h3>Batch Mass Composition (kg)</h3>
+          <div class="slider-row">
+            <label>ABS Flakes: <strong id="lblMassAbs">45.0 kg</strong></label>
+            <input type="range" id="slideAbs" min="0" max="100" value="45" step="1" class="slider-range">
+          </div>
+          <div class="slider-row">
+            <label>PC-ABS Alloy: <strong id="lblMassPcabs">28.0 kg</strong></label>
+            <input type="range" id="slidePcabs" min="0" max="100" value="28" step="1" class="slider-range">
+          </div>
+          <div class="slider-row">
+            <label>HIPS Regrind: <strong id="lblMassHips">12.0 kg</strong></label>
+            <input type="range" id="slideHips" min="0" max="100" value="12" step="1" class="slider-range">
+          </div>
+          <div class="slider-row">
+            <label>Pure Polycarbonate: <strong id="lblMassPc">8.0 kg</strong></label>
+            <input type="range" id="slidePc" min="0" max="100" value="8" step="1" class="slider-range">
+          </div>
+          <div class="slider-row">
+            <label>Isolated BFR Scrap: <strong id="lblMassBfr">18.0 kg</strong></label>
+            <input type="range" id="slideBfr" min="0" max="100" value="18" step="1" class="slider-range">
+          </div>
+
+          <div class="passport-btn-wrap">
+            <button class="btn btn-emerald" id="btnDownloadPassport">
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download PDF Digital Material Passport
+            </button>
+          </div>
+        </div>
+
+        <div class="glass-card card-lca-bars">
+          <h3>Virgin Petrochemical vs PolyLoop Process Burden</h3>
+          <div class="comparison-bars-container">
+            <div class="bar-group">
+              <div class="bar-meta">
+                <span>Virgin Resin Cradle-to-Gate Baseline</span>
+                <strong id="barVirginVal">361.2 kg CO₂e</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill red" id="barVirginFill" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <div class="bar-group">
+              <div class="bar-meta">
+                <span>PolyLoop Mechanical Recycling Footprint</span>
+                <strong id="barRecycleVal">76.5 kg CO₂e</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill green" id="barRecycleFill" style="width: 21%;"></div>
+              </div>
+            </div>
+          </div>
+          <p class="lca-footnote">
+            Formula: ΔE_avoided = M_recycled · (EF_virgin - EF_rec) + M_diverted · EF_landfill - M_recycled · EF_transp.
+            Constants based on PlasticsEurope and Ecoinvent v3.8.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- TAB 5: IFIXIT GALLERY                                        -->
+    <!-- ============================================================ -->
+    <section class="tab-panel" id="tab-gallery">
+      <div class="panel-header animate-fade-in">
+        <div class="tag-pill">CURATED IFIXIT TEARDOWN REPOSITORY</div>
+        <h2>Official iFixit Studio Teardown Sample Library</h2>
+        <p>Studio-lit, high-resolution disassemblies showing real-world plastic casing ribs, molded reliefs, and ISO stamps. Click any photo to test it in the optical scanner.</p>
+      </div>
+
+      <div class="gallery-cards-grid" id="galleryGrid">
+        <!-- Dynamic populated by app.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

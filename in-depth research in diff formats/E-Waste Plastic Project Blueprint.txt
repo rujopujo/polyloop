@@ -1,0 +1,565 @@
+﻿PolyLoop: Technical Architecture, Engineering Blueprint, and Operational Strategy for Automated E-Waste Polymer Identification and Upcycling
+Theoretical Foundations and Chemistry of E-Waste Plastics
+Electronic waste represents the fastest-growing domestic waste stream in the modern world1. While established metallurgical refining infrastructure recovers precious metals such as gold, silver, copper, and palladium from printed circuit boards, the polymeric housings that enclose these assemblies are overwhelmingly discarded1. Polymeric casings account for approximately 20% to 30% of total e-waste by mass, yet over 80% of this material is routed to landfills or incinerators1. This systemic leakage in circular materials management stems from two intractable technical barriers: macromolecular thermodynamic incompatibility and persistent chemical contamination from legacy halogenated additives1.
+Thermodynamic Polymer Incompatibility
+Post-consumer electronics rely predominantly on styrenic polymers and engineering thermoplastics, with market volumes dominated by Acrylonitrile Butadiene Styrene (ABS), High-Impact Polystyrene (HIPS), Polycarbonate (PC), and PC-ABS blends1. Because these polymers are molded into black, dark gray, or beige casings, visual identification is nearly impossible1. However, commingling these resins during mechanical melt reprocessing causes acute mechanical failure1.
+The physical mechanism of this breakdown is described by the Flory-Huggins theory of polymer solutions and blends. The Gibbs free energy of mixing per unit volume for two chemically distinct macromolecules is defined by the relationship:
+  
+
+Because industrial polymers possess macromolecular chain lengths with high degrees of polymerization (  ), the combinatorial entropy of mixing (  ) approaches zero3. Consequently, the thermodynamic spontaneity of mixing is dictated almost entirely by the enthalpy of mixing (  ), which is directly proportional to the Flory-Huggins interaction parameter (  ):
+  
+
+In this expression,    and    represent the respective Hansen solubility parameters of the individual polymer phases,    is the reference volume, and    is the thermal energy3. Because almost all chemically dissimilar polymer pairs yield positive interaction parameters (  ), spontaneous thermodynamic miscibility cannot occur3.
+When incompatible matrices such as ABS and HIPS are melted together, the polymers undergo micro-phase separation1. ABS consists of a polar continuous styrene-acrylonitrile (SAN) copolymer matrix grafted onto polybutadiene rubber particles3. In contrast, HIPS consists of a non-polar polystyrene continuous phase containing dispersed polybutadiene spheres3. The polar nitrile (  ) dipoles in the ABS matrix repel the non-polar aromatic rings of the HIPS matrix, resulting in high interfacial tension, zero macromolecular interdiffusion, and negligible chain entanglement across the boundary3. Under external mechanical loading, these unbonded phase interfaces act as critical stress concentrators that promote micro-void nucleation, uncontrolled crazing, and catastrophic delamination1. Contaminating an ABS matrix with as little as 3% to 5% HIPS by mass reduces notched Izod impact resistance and tensile elongation at break by more than 70%, rendering the recycled plastic too brittle for structural applications1.
+
+
+Polymer Combination
+	Chemical Structure Disparity
+	Interfacial Melt Mechanics
+	Resulting Mechanical Defect Mode
+	ABS + HIPS
+	Polar nitrile groups on the SAN copolymer matrix versus non-polar aromatic polystyrene3.
+	High interfacial tension; total absence of molecular chain entanglement across phase boundaries3.
+	Severe delamination under shear; loss of over 70% in impact and tensile strength1.
+	ABS + PC
+	SAN grafted terpolymer mixed with aromatic bisphenol-A polycarbonate4.
+	Thermodynamically favorable partial miscibility; forms an engineering alloy under correct shear1.
+	High tensile strength and impact toughness, provided feedstock is dried to prevent hydrolysis1.
+	HIPS + PC
+	Non-polar styrenic hydrocarbon matrix versus polar aromatic carbonate backbone3.
+	Complete thermodynamic immiscibility; rapid macrophase segregation during cooling3.
+	Severe matrix embrittlement; filament snaps inside 3D printer drive gears1.
+	Polyolefins (PP/PE) + Styrenics
+	Linear aliphatic hydrocarbon chains versus bulky aromatic/nitrile pendant groups7.
+	Extreme structural divergence; gross phase separation during laminar melt flow7.
+	Complete failure of layer-to-layer adhesion; material shears along laminar boundaries1.
+	Hazardous Additives: Brominated Flame Retardants and Regulatory Directives
+The secondary barrier preventing the reuse of e-waste plastic is chemical toxicity1. Historically, international fire safety standards, such as UL 94 V-0, required that polymer enclosures housing power supplies, cathode-ray tubes (CRTs), and high-voltage transformers extinguish quickly when ignited6. Manufacturers met this requirement by adding 10% to 25% by weight of Brominated Flame Retardants (BFRs) to raw polymer formulations, typically using 3% to 8% Antimony Trioxide (  ) as an inorganic synergist6.
+The primary legacy BFR additives include Polybrominated Diphenyl Ethers (PBDEs), such as Decabromodiphenyl ether (DecaBDE) and Octabromodiphenyl ether (OctaBDE); Tetrabromobisphenol A (TBBPA), used either as an additive or reactive compound; and Hexabromocyclododecane (HBCD)6. Because additive flame retardants are physically dispersed rather than chemically bonded to the host polymer matrix, they can leach out over time3.
+Thermally, these halogenated additives work through gas-phase radical trapping: upon exposure to flame, they cleave weak carbon-bromine (  ) bonds to generate reactive bromine radicals (  ), which neutralize high-energy hydroxyl (  ) and hydrogen (  ) free radicals in the combustion zone. However, when BFR-contaminated plastics are reprocessed in extruders or 3D printers at temperatures between 210°C and 250°C, the thermal stress causes partial dehydrohalogenation1. This process releases toxic Polybrominated Dibenzo-p-dioxins and Dibenzofurans (PBDD/Fs), which are bioaccumulative carcinogens and endocrine disruptors1.
+Strict international environmental regulations govern these compounds:
+* The European Union RoHS Directive (2011/65/EU and 2015/863/EU) establishes a strict maximum concentration limit of 0.1% by weight (1,000 ppm) for PBDEs and polybrominated biphenyls (PBBs) in homogeneous electrical components1.
+* The Stockholm Convention on Persistent Organic Pollutants and the EU POPs Regulation (Regulation 2019/1021) limit the concentration of specific PBDE congeners in recycled plastics to 500 ppm, prohibiting their reuse in consumer goods, children's toys, or domestic 3D printing filaments1.
+* Annex VII of the WEEE Directive (2012/19/EU) requires the selective extraction and specialized disposal of all plastics containing brominated flame retardants prior to shredding or downcycling1.
+Closed-loop recycling systems require screening mechanisms to identify and isolate BFR-contaminated components, preventing hazardous halogens from re-entering secondary consumer supply chains1.
+
+
+Appliance Category
+	Era of Manufacture
+	Primary Polymer Matrix
+	BFR Contamination Risk Level
+	Regulatory Action Protocol
+	CRT Televisions & CRT Monitors
+	Pre-2006
+	HIPS (63%), ABS (22%)4
+	Critical Risk (70% – 90%): High concentrations of DecaBDE and OctaBDE6.
+	Reject from mechanical upcycling; route to specialized high-temperature WEEE disposal1.
+	Laser Printers & Copiers
+	1998 – 2012
+	ABS (80%), PC-ABS (13%)4
+	High Risk (40% – 60%): Internal fuser zones frequently compound TBBPA additives6.
+	Require mandatory density stratification and Beilstein flame tests before approval1.
+	Desktop PC Chassis & Bezels
+	2000 – 2015
+	ABS (50%), PC-ABS (35%), HIPS (15%)4
+	Moderate-High Risk (30% – 45%): Dark structural bezels often contain BFRs6.
+	Inspect ISO 11469 mold markings for FR codes; run density validation tests1.
+	Modern Flat Displays & Laptops
+	2016 – Present
+	PC-ABS (90%), Pure PC (10%)4
+	Low Risk (<10%): Industry transition toward organophosphorus flame retardants4.
+	Qualified for closed-loop upcycling and additive manufacturing filament extrusion1.
+	Keyboards, Mice & Routers
+	2010 – Present
+	ABS (>80%), HIPS (<15%)4
+	Minimal Risk (<5%): Low internal voltage requirements eliminate need for BFRs4.
+	Highly suitable for direct desktop granulation, washing, drying, and filament extrusion1.
+	Multi-Tiered Hybrid Identification and Diagnostic Architecture
+Industrial recycling facilities rely on Near-Infrared (NIR) or X-ray Fluorescence (XRF) spectroscopy systems that often cost more than $30,000, placing them out of reach for decentralized maker spaces, academic laboratories, and small workshops1. PolyLoop addresses this economic limitation through a three-tiered hybrid identification pipeline that combines edge computer vision, automated optical character recognition, and physical-chemical diagnostics1.
+The operational workflow begins when an e-waste component is presented to a standard local webcam1. The image passes through a component classifier that identifies the appliance type, establishing its manufacturing era and baseline hazard profile1.
+The system then zooms in to locate and read embossed resin stamps1. If an ISO stamp is detected, the parsed polymer type and any embedded flame-retardant markings are cross-referenced with the hazard engine1.
+If the casing has been degraded or lacks legible stamps, the system automatically redirects to an interactive diagnostic wizard1. This tool walks the operator through stepwise density-based sink-float stratification and solvent spot tests1.
+Once verified pure and free of hazardous halogens, the polymer is cleared for thermal calculation and extrusion into 3D printer filament1. Samples flagged with high flame-retardant concentrations are rejected and routed to hazardous waste streams1.
+Stage 1: Visual Object Classification (Ultralytics YOLO)
+The first stage captures visual frames using a standard webcam connected to an Ultralytics YOLOv8n (nano) inference engine running locally on edge hardware1. The model is trained on structural e-waste components, including monitor backings, printer fuser panels, personal computer bezels, CRT housings, and laptop enclosures1.
+The detection model outputs a bounding box, component label, and confidence score1. This metadata contextualizes the component within an operational risk matrix: a component classified as a "CRT housing" automatically sets the baseline BFR risk index above 85%, whereas an enclosure identified as a "keyboard casing" defaults to a low-risk ABS profile1.
+Stage 2: Engraved Mold Stamp Optical Character Recognition (OpenCV + EasyOCR)
+Under international standards ISO 11469 ("Generic identification and marking of plastics products") and ISO 1043 (Parts 1 to 4: "Symbols and abbreviated terms"), plastic parts over 25 grams must bear an embossed resin identification code9. These marks are molded between reversed angle brackets: >ABS<, >PS-HI< (HIPS), >PC<, >PC+ABS<, or >ABS-FR(40)<1. ISO 1043-4 categorizes flame retardant chemistry using numeric identifiers, where FR(40) indicates halogenated organic compounds with antimony trioxide, and FR(14) or FR(52) designate aliphatic or red phosphorus additives9.
+Because these markings are molded directly into the tooling steel as low-profile geometric reliefs on dark plastic surfaces without color contrast, standard OCR engines fail to read them1. PolyLoop addresses this issue by routing the cropped region of interest (ROI) through a dedicated OpenCV image processing pipeline prior to character recognition1.
+
+
+Processing Sequence
+	OpenCV Implementation Function
+	Scientific and Algorithmic Rationale
+	1. Grayscale Conversion & CLAHE
+	cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+
+
+clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8,8))
+
+
+enhanced = clahe.apply(gray)
+	Standardizes input channels and applies Contrast Limited Adaptive Histogram Equalization, accentuating subtle shadows cast by embossed lettering under directional light1.
+	2. Bilateral Denoising Filter
+	cv2.bilateralFilter(enhanced, d=9, sigmaColor=75, sigmaSpace=75)
+	Smooths high-frequency plastic grain noise, scuffs, and mold-texture artifacts while preserving sharp gradient transitions across character edges1.
+	3. Morphological Gradient Extraction
+	kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+
+
+grad = cv2.morphologyEx(blur, cv2.MORPH_GRADIENT, kernel)
+	Subtracts the morphological erosion of the stamp from its dilation, isolating the structural contours and perimeters of the ISO angle brackets1.
+	4. Otsu Adaptive Binarization
+	_, thresh = cv2.threshold(grad, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+	Computes the optimal global binarization threshold based on the bimodal pixel distribution, yielding a high-contrast monochrome image for character parsing1.
+	5. EasyOCR Inference & Regular Expressions
+	results = reader.readtext(thresh)
+
+
+regex = r'>\s*([A-Z0-9\+\-\(\)]+)\s*<'
+	Parses text bounding boxes and extracts standardized polymer tokens, automatically flagging embedded safety tags like FR(40)1.
+	Stage 3: Guided Physical and Chemical Diagnostic Fallback Matrix
+When e-waste casings have undergone heavy surface wear, painting, or granulation that obliterates ISO stamps, the system runs an interactive diagnostic wizard1. The user interface walks the operator through a stepwise physical-chemical screening tree based on density stratification, Hansen solubility reactions, and micro-scale combustion behavior1.
+The density workflow begins by placing clean 5 mm plastic chips into water baths of known specific gravity7. Neat polyolefins (PP, LDPE, HDPE) have densities below 0.96 g/cm³ and float in plain tap water (  )7. Unfilled HIPS (  ) sinks slowly in pure water, but floats cleanly in a 10% sodium chloride (NaCl) saline solution (  )7.
+Conversely, virgin ABS (  ) sinks in a 10% NaCl bath7. Pure PC (  ) and heavily brominated styrenics (  ) sink rapidly across both baseline liquids due to the high atomic weight of bromine (  ) and antimony (  )6.
+For chemical confirmation, a single drop of solvent is applied to an unpainted surface for 30 seconds3. Because of its polar nitrile groups, ABS softens and becomes tacky when exposed to industrial acetone, whereas HIPS exhibits slower surface softening3.
+When exposed to d-limonene (a bio-derived terpene solvent), HIPS dissolves into a gel, whereas ABS remains unaffected due to the chemical resistance of its SAN copolymer backbone3. Polycarbonate exhibits strong resistance to acetone over short exposures, developing only a faint surface haze after several minutes3.
+If the polymer identity remains unconfirmed, a heated copper wire is pressed to the plastic and introduced to a butane flame. The appearance of a bright green flame confirms copper halide formation (chlorine or bromine), indicating hazardous halogenation6.
+Neat ABS burns with a luminous yellow flame, a blue base, and a pungent odor of burnt rubber1. HIPS burns rapidly with an orange flame, emitting copious soot webs and a sweet, marzipan-like styrene odor1. Polycarbonate burns with difficulty, self-extinguishing immediately upon removal from the ignition source while producing a faint phenolic scent1.
+
+
+Polymer Class
+	Specific Gravity (g/cm3)
+	Tap Water (ρ=1.00)
+	10% NaCl Solution (ρ=1.07)
+	Dense Brine (ρ=1.15)
+	Acetone Spot Reaction
+	d-Limonene Reaction
+	Flame and Combustion Behavior
+	HIPS
+	1.03 – 1.057
+	Sinks slowly7
+	Floats
+[cite: 7]
+	Floats
+[cite: 10]
+	Rapidly swells; becomes soft and tacky3.
+	Dissolves completely into a clear, viscous gel13.
+	Orange flame, dense soot webs, sweet floral/marzipan odor1.
+	ABS
+	1.05 – 1.087
+	Sinks7
+	Sinks7
+	Floats
+[cite: 10]
+	Dissolves rapidly; forms a tacky paste3.
+	Chemically inert; zero swelling or dissolution13.
+	Yellow flame, dark smoke, pungent burnt-rubber odor1.
+	PC-ABS
+	1.10 – 1.15
+	Sinks rapidly
+	Sinks rapidly
+	Neutral buoyancy boundary
+	Slow surface softening; cloudy localized haze3.
+	Chemically inert; zero dissolution3.
+	Yellow-orange flame, moderate soot, faint aromatic odor1.
+	PC
+	1.20 – 1.227
+	Sinks rapidly7
+	Sinks rapidly7
+	Sinks rapidly10
+	Highly resistant; faint micro-crazing after 2 min3.
+	Insoluble; totally unaffected3.
+	Self-extinguishes upon flame removal; faint phenolic odor1.
+	BFR Plastic (Any + Br)
+	1.18 – 1.35
+[cite: 6]
+	Sinks rapidly6
+	Sinks rapidly6
+	Sinks rapidly6
+	Variable (governed by base resin matrix)3.
+	Variable (governed by base resin matrix)3.
+	Self-extinguishes instantly; emits dense, choking acid smoke; positive Beilstein test6.
+	Closed-Loop Mechanical Upcycling and 3D Filament Extrusion Parameters
+Transforming post-consumer casings into 1.75 mm additive manufacturing filament requires strict rheological and moisture control1. Recycled polymers undergo multiple thermal processing cycles, and contaminated feedstocks or incorrect processing temperatures degrade polymer chains, resulting in brittle, unprintable filament1.
+Granulation and Hygroscopic Moisture Extraction
+Recovered enclosures approved by the BFR Risk Engine are manually stripped of copper wiring, brass thread inserts, and foam padding, then processed through a rotary granulator to produce 3 mm to 5 mm regrind flakes1. Fine dust and particulate matter are removed through a 1 mm mesh sieve1.
+Engineering thermoplastics—especially Polycarbonate and ABS—are hygroscopic, readily absorbing ambient atmospheric moisture into their polymer matrices1. When moist polymer flakes enter the heated barrel of an extruder, the trapped water flashes into high-pressure steam1. In Polycarbonate and PC-ABS blends, this triggers hydrolytic chain scission: water molecules chemically cleave the ester linkages of the carbonate backbone at elevated temperatures, permanently reducing average molecular weight (  ) and intrinsic viscosity1. The resulting extruded filament exhibits internal voiding, surface foaming, and extreme brittleness1.
+
+
+Polymer Regrind Type
+	Minimum Pre-Drying Temp
+	Required Residence Time
+	Maximum Permissible Moisture
+	Extrusion Failure Mode if Undried
+	Recycled ABS
+	80°C (176°F)
+	3 to 4 hours
+	< 0.05% by weight (500 ppm)
+	Steam bubbling in melt die, rough matte finish, severe layer shear weakness1.
+	Recycled HIPS
+	70°C (158°F)
+	2 to 3 hours
+	< 0.05% by weight (500 ppm)
+	Micro-voiding, nozzle spitting, and inconsistent filament diameter1.
+	Recycled PC
+	120°C (248°F)
+	4 to 6 hours
+	< 0.02% by weight (200 ppm)
+	Catastrophic hydrolytic chain scission, permanent embrittlement, structural failure1.
+	Recycled PC-ABS
+	100°C (212°F)
+	3 to 4 hours
+	< 0.03% by weight (300 ppm)
+	Internal foaming, poor interlayer bonding, delamination under minimal flexure1.
+	Extrusion Rheology and 3D Printing Operational Parameters
+The dried flakes are processed using a single-screw filament extruder equipped with a compression screw featuring a 3:1 length-to-diameter (  ) compression ratio1. The extruder barrel is divided into three independently controlled heating zones, terminating in a 1.68 mm melt die orifice that expands under polymer die swell to yield a nominal 1.75 mm (  ) filament diameter1. Filament tension is regulated by a dual-axis optical laser diameter gauge linked to a variable-speed tractor puller spooled directly onto 1 kg reels1.
+The table below outlines validated operating boundaries for single-screw extrusion and end-use Fused Deposition Modeling (FDM) additive manufacturing:
+Processing Parameter
+	Recycled ABS
+	Recycled HIPS
+	Recycled PC
+	Recycled PC-ABS Blend
+	Extruder Feed Zone 1
+	185°C – 195°C
+	170°C – 180°C
+	230°C – 245°C
+	210°C – 220°C
+	Extruder Transition Zone 2
+	215°C – 225°C
+	195°C – 210°C
+	265°C – 275°C
+	235°C – 245°C
+	Extruder Die Zone 3
+	225°C – 235°C
+	210°C – 225°C
+	280°C – 295°C
+	250°C – 265°C
+	Cooling Water Bath Temp
+	50°C – 60°C (warm bath)
+	40°C – 50°C
+	70°C – 80°C
+	60°C – 70°C
+	FDM Printing Nozzle Temp
+	230°C – 245°C
+	220°C – 240°C
+	280°C – 305°C (All-Metal)
+	255°C – 275°C
+	FDM Heated Bed Temp
+	95°C – 110°C
+	85°C – 100°C
+	115°C – 130°C
+	100°C – 115°C
+	Build Plate Interface
+	Smooth PEI + Dimafix adhesive
+	PEI Sheet or Kapton Tape
+	PEI + Layered PVA Glue Stick
+	Textured PEI Sheet
+	Chamber Enclosure Temp
+	Passive enclosure (40°C – 50°C)
+	Passive enclosure (35°C – 45°C)
+	Actively heated (65°C – 80°C)
+	Enclosed chamber (45°C – 60°C)
+	Part Cooling Fan Speed
+	0% – 15% (preserves adhesion)
+	20% – 35%
+	0% (zero draft to prevent stress)
+	10% – 20%
+	Volumetric Thermal Shrinkage
+	0.4% – 0.7% (high warp risk)
+	0.3% – 0.6% (moderate warp risk)
+	0.6% – 0.9% (severe warp risk)
+	0.5% – 0.7% (moderate warp risk)
+	Occupational Health, Safety, and Volatile Organic Compound (VOC) Control
+Extruding and printing recycled styrenics and engineering polymers generates hazardous airborne emissions1. Thermally processed ABS and HIPS release volatile organic compounds (VOCs)—predominantly styrene monomer, ethylbenzene, and acrylonitrile—alongside high concentrations of Ultrafine Particles (UFPs, aerodynamically   )1. Styrene is an occupational neurotoxin and an IARC Group 2A probable human carcinogen1. Extrusion equipment and 3D printers must operate within sealed enclosures linked to local exhaust ventilation systems equipped with activated carbon adsorptive beds for VOC capture and HEPA filters rated to trap particulates down to 0.3 microns1.
+Carbon Avoidance Life Cycle Assessment (LCA) Methodology
+To quantify environmental benefits, PolyLoop incorporates an automated, ISO 14040/14044-compliant Life Cycle Assessment (LCA) computational engine1. The model benchmarks mechanical upcycling directly against primary production of virgin petrochemical resins1.
+Mathematical Formulation
+The net Global Warming Potential (GWP) offset achieved per functional unit of processed e-waste plastic is calculated via:
+  
+
+Where:
+*    represents the total mass of clean, verified polymer successfully extruded into commercial-grade 3D filament (kg)1.
+*    represents the cradle-to-gate Global Warming Potential of manufacturing equivalent virgin resin (kg    per kg resin), sourced from PlasticsEurope Eco-Profiles and Ecoinvent v3.81.
+*    represents the cumulative energy expenditure of mechanical sorting, grinding, washing, convective air-drying, and single-screw thermal extrusion (empirically established at 0.75 kg   /kg based on regional grid electricity mix)1.
+*    quantifies the baseline avoidance of fugitive methane, volatile organic releases, and heavy metal leachate treatment resulting from landfill diversion (fixed at 0.05 kg   /kg)1.
+*    accounts for local reverse logistics, collection, and transport fuel emissions (calculated at 0.08 kg   /kg over a 50 km logistics radius)1.
+
+
+Polymer Classification
+	Virgin Cradle-to-Gate GWP (EFvirgin​)
+	PolyLoop Process Burden (EFrecycling​+EFtransport​)
+	Net Carbon Avoided (ΔEavoided​)
+	Equivalent Fossil Crude Oil Offset
+	ABS (Acrylonitrile Butadiene Styrene)
+	3.80 kg    / kg18
+	0.83 kg    / kg1
+	+ 3.02 kg    / kg
+[cite: 1]
+	~ 2.1 Liters crude oil equivalent1
+	HIPS (High-Impact Polystyrene)
+	3.35 kg    / kg19
+	0.83 kg    / kg1
+	+ 2.57 kg    / kg
+[cite: 1]
+	~ 1.8 Liters crude oil equivalent1
+	PC (Polycarbonate)
+	6.80 kg    / kg20
+	0.83 kg    / kg1
+	+ 6.02 kg    / kg
+[cite: 1]
+	~ 3.9 Liters crude oil equivalent1
+	PC-ABS Blend
+	5.10 kg    / kg19
+	0.83 kg    / kg1
+	+ 4.32 kg    / kg
+[cite: 1]
+	~ 2.9 Liters crude oil equivalent1
+	Empirical Batch Simulation (100 kg E-Waste Plastic Inflow)
+To evaluate system performance at pilot scale, a 100 kg batch of mixed commercial IT scrap was analyzed1:
+   * An incoming mix of 100 kg containing computer bezels, monitor frames, and printer covers enters sorting1.
+   * The BFR Risk Engine identifies and isolates 15 kg of older CRT monitor casings containing over 2,000 ppm PBDE, diverting them from thermal extrusion to compliant hazardous containment1.
+   * The remaining 85 kg of clean material is sorted into 50 kg ABS, 25 kg PC-ABS, and 10 kg HIPS1.
+   * Calculating net carbon avoidance:
+  
+
+This single 100 kg recovery run eliminates 284.7 kg of net greenhouse emissions, offsetting the environmental impact of combusting 140 kg of coal or operating an internal combustion vehicle for roughly 1,160 kilometers1.
+100% Free Open-Source Architecture and Tech Stack
+PolyLoop is designed to operate without paid cloud infrastructure, proprietary vision APIs, or subscription databases1. The architecture executes locally on standard consumer PC hardware using open-source tools1.
+The system architecture organizes data flow across three primary layers:
+   1. Presentation Layer: The user interface runs as a single-page application built with React 18, Vite, and Tailwind CSS1. It provides a video canvas targeting overlay, interactive diagnostic forms, telemetry dashboards using Recharts, and direct triggers for Material Passport PDF generation1.
+   2. Application and Logic Layer: A local FastAPI server processes incoming requests1. Visual classification is handled by an edge-optimized Ultralytics YOLOv8n model, while engraved mold markings are parsed using OpenCV preprocessing filters and EasyOCR1. Deterministic business logic is divided into modular services: a Polymer Knowledge Base defining physical-chemical constants, a BFR Contamination Risk Engine evaluating device age and safety codes, a Thermal Parameter Calculator generating machine settings, and an ISO 14040 Carbon Avoidance Engine computing environmental savings1.
+   3. Data and Output Layer: Session states, component scan histories, and audit records are stored locally in an embedded SQLite database managed via SQLAlchemy1. The system uses ReportLab to compile multi-page, verifiable Digital Material Passports directly on the backend, generating downloadable PDF certificates with complete chain-of-custody data1.
+
+
+Architectural Domain
+	Selected Technology
+	Open-Source License
+	Functional Role and Zero-Cost Justification
+	Vision & Object Detection
+	Ultralytics YOLOv8n / YOLOv11n1
+	AGPL-3.0 / Apache 2.01
+	Local CPU/GPU inference for casing classification without cloud vision API costs1.
+	Optical Character Recognition
+	EasyOCR + PyTorch1
+	Apache 2.01
+	Local character recognition engine for parsing ISO resin stamps on ROIs1.
+	Image Preprocessing
+	OpenCV (opencv-python-headless)1
+	Apache 2.01
+	Local image operations: CLAHE contrast enhancement, bilateral filtering, Otsu binarization1.
+	API Web Service
+	FastAPI + Pydantic v21
+	MIT1
+	Asynchronous Python framework with automatic Swagger documentation and schema validation1.
+	Data Persistence
+	SQLite + SQLAlchemy ORM1
+	Public Domain / MIT1
+	Serverless, zero-configuration local relational database stored in a versioned flat file1.
+	Frontend Framework
+	React 18 (Vite build engine)1
+	MIT1
+	High-performance SPA with fast hot module replacement and minimal bundle size1.
+	Styling & Icons
+	Tailwind CSS + Lucide React1
+	MIT1
+	Utility-first responsive design; dark-mode industrial theme; comprehensive icon set1.
+	Data Visualization
+	Recharts1
+	MIT1
+	Declarative SVG charting library for thermal curves, batch breakdowns, and LCA metrics1.
+	Document Generation
+	ReportLab Document Engine1
+	BSD License1
+	Programmatic PDF compilation; produces downloadable technical Material Passports1.
+	DevOps & Integration CI
+	GitHub Actions1
+	Free Public Tier1
+	Automated continuous integration: executes Ruff linting and Pytest test suites on PRs1.
+	Four-Member Engineering Division, Repository Governance, and Sprint Roadmap
+To ensure parallel development across a four-engineer team, PolyLoop establishes clear operational boundaries, interface contracts, and GitFlow governance rules1.
+Team Role Allocation and API Interface Contracts
+Engineering responsibilities are divided into four specialized domains1:
+   * Member 1 (Vision and OCR Pipeline Lead): Focuses on computer vision, YOLO model optimization, OpenCV image filtering, and EasyOCR stamp extraction1. Member 1 ingests raw camera frames and delivers a standardized JSON payload: { casing_type: str, stamp_detected: bool, raw_text: str, polymer: str, confidence: float }1.
+   * Member 2 (Backend Architecture and Domain Lead): Responsible for API routing, the Polymer Knowledge Base dictionary, BFR risk-scoring algorithms, and SQLite database schemas1. Member 2 ingests the vision payload and diagnostic inputs to provide unified REST endpoints (/api/scan, /api/diagnose, /api/batches)1.
+   * Member 3 (Frontend UI and Diagnostic Wizard Lead): Implements the React single-page application, WebRTC camera canvas overlay, diagnostic decision tree, and Recharts telemetry dashboards1. Member 3 delivers an industrial user interface connected to the backend API1.
+   * Member 4 (Circularity, Thermal Modeling, PDF and DevOps Lead): Manages extrusion parameter calculations, the ISO 14040 carbon offset engine, ReportLab PDF passport generation, and GitHub Actions CI pipelines1. Member 4 ingests verified batch records to output PDF technical datasheets (/api/passport/{id}/pdf) and maintains repository test coverage1.
+
+
+Team Role & Specialization
+	Concrete Deliverables
+	Input Interface Contract
+	Output Interface Contract
+	Member 1:
+
+
+Vision & OCR Pipeline Lead1
+	• Quantized YOLOv8n casing classifier1.
+
+
+• OpenCV adaptive thresholding pipeline1.
+
+
+• EasyOCR wrapper with ISO regex parser1.
+
+
+• Standalone Python inference module1.
+	Raw webcam video stream, captured snapshots, and image bytes1.
+	Standardized JSON payload: { casing: str, stamp: bool, text: str, polymer: str, conf: float }1.
+	Member 2:
+
+
+Backend & Polymer PKB Lead1
+	• FastAPI server routing, CORS, and schemas1.
+
+
+• Polymer Knowledge Base property dictionary1.
+
+
+• BFR historical risk-scoring algorithms1.
+
+
+• SQLite scan persistence layer1.
+	Vision JSON payloads from Member 1 and test inputs from Member 31.
+	REST endpoints: POST /api/scan, POST /api/bfr-risk, GET /api/batches/{id}1.
+	Member 3:
+
+
+Frontend UI & Diagnostic HUD Lead1
+	• Responsive React 18 SPA (Vite + Tailwind)1.
+
+
+• WebRTC camera component with canvas overlay1.
+
+
+• Step-by-step diagnostic questionnaire UI1.
+
+
+• Real-time Recharts telemetry graphs1.
+	User click inputs, video feed, and API responses from Member 21.
+	Responsive industrial web interface with integrated PDF download triggers1.
+	Member 4:
+
+
+LCA, Extrusion Math & DevOps Lead1
+	• Filament extrusion thermal calculation logic1.
+
+
+• ISO 14040 carbon avoidance math engine1.
+
+
+• ReportLab automated PDF passport script1.
+
+
+• GitHub Actions CI pipeline (Ruff + Pytest)1.
+	Verified polymer classifications and batch weights from Member 21.
+	Downloadable PDF Material Passports and passing automated CI test suites1.
+	Ten-Day Sprint Execution Schedule
+Development is structured into three consecutive sprint milestones1:
+   * Sprint 1 (Days 1 – 3: Foundations and Scaffolding): Member 1 curates a reference dataset of 25 casing stamp images and tests OpenCV CLAHE filters1. Member 2 scaffolds the FastAPI codebase and implements the static Polymer Knowledge Base dictionary1. Member 3 initializes the Vite and Tailwind workspace, building the shell layout, header, and tab navigation1. Member 4 establishes the carbon offset equations, sets up repository branch protections, and configures GitHub Actions CI workflows1.
+   * Sprint 2 (Days 4 – 7: Core Feature Implementation): Member 1 refines EasyOCR extraction and implements ISO 11469 regex matching1. Member 2 builds the BFR risk-scoring algorithm and SQLite persistence tables1. Member 3 creates the HTML5 camera canvas HUD and the interactive sink-float questionnaire flow1. Member 4 develops the thermal parameter calculator and designs the ReportLab PDF passport template1.
+   * Sprint 3 (Days 8 – 10: System Integration and Demo Freeze): Member 1 packages the vision scripts into an API-callable Python module1. Member 2 connects OCR and BFR logic into the master /api/scan endpoint1. Member 3 connects the frontend video feed to backend routes, binding live results to UI cards and passport download buttons1. Member 4 executes end-to-end integration tests, verifies PDF output formatting, and tags the final production release1.
+
+
+Milestone Timeline
+	Member 1 (Vision/OCR)
+	Member 2 (Backend/PKB)
+	Member 3 (Frontend/HUD)
+	Member 4 (LCA/DevOps)
+	Sprint 1: Days 1 – 3
+
+
+Foundational Architecture
+[cite: 1]
+	Curate 25 casing stamp images; validate OpenCV CLAHE filter scripts1.
+	Scaffold FastAPI application; construct static PKB dictionary1.
+	Initialize Vite+Tailwind workspace; build shell layout and tabs1.
+	Formulate LCA carbon math; configure GitHub Actions workflows1.
+	Sprint 2: Days 4 – 7
+
+
+Core Logic Implementation
+[cite: 1]
+	Finalize EasyOCR extraction; implement ISO 11469 regex parser1.
+	Build BFR risk scoring logic; construct SQLite schema and CRUD routes1.
+	Develop WebRTC camera HUD; implement interactive test wizard1.
+	Build thermal parameter calculator; design ReportLab PDF template1.
+	Sprint 3: Days 8 – 10
+
+
+Integration & Demo Freeze
+[cite: 1]
+	Package vision pipeline into clean, importable Python modules1.
+	Wire OCR, PKB, and BFR logic into master /api/scan endpoint1.
+	Connect video streams to backend; bind passport download triggers1.
+	Run end-to-end integration tests; resolve CI warnings; tag v1.0 release1.
+	Repository Governance and Pull Request Quality Gates
+Development follows a strict GitFlow workflow:
+   * The main branch is production-frozen, reserved exclusively for tagged, demo-ready releases1.
+   * The develop branch serves as the staging branch for feature integration; direct commits are prohibited1.
+   * All feature implementations are isolated in dedicated branches named by member role (e.g., feat/m1-ocr-stamp-extractor, feat/m2-bfr-risk-scoring, feat/m3-sink-float-wizard-ui, feat/m4-pdf-passport-generator)1.
+   * Pull Request Approval Criteria: Merging into develop requires at least one peer code review, clean test execution via pytest without regressions, zero warnings under the ruff linter, successful compilation under npm run build, and complete absence of hardcoded commercial API keys1.
+Plain-Language Synthesis: Core Problem, Operational Functionality, and Societal Impact
+The technical specifications of the PolyLoop system can be summarized through four core questions:
+1. What Is the Underlying Problem with E-Waste Plastics?
+When electronics like computers, monitors, and printers reach the end of their usable life, recyclers systematically recover valuable metals such as gold, silver, and copper from circuit boards1. However, the plastic casings—which make up nearly a third of the machine's total mass—are almost universally thrown away1.
+This systemic waste occurs for two main reasons:
+   1. The Incompatibility Problem: Different plastics look identical1. A black monitor bezel made of Acrylonitrile Butadiene Styrene (ABS) looks and feels just like one made of High-Impact Polystyrene (HIPS)1. However, if an operator melts them together, they do not mix; they separate on a microscopic level, producing a fragile material that crumbles under minimal stress1.
+   2. The Toxic Contamination Problem: Millions of older electronics contain Brominated Flame Retardants (BFRs)—hazardous chemical additives designed to prevent fires1. When remelted, these plastics release toxic dioxins, making them unsafe and illegal under international environmental laws (such as RoHS and WEEE) for use in consumer products, toys, or 3D printing filaments1.
+Because small-scale recyclers, maker spaces, and municipal centers lack access to expensive industrial analytical laboratories to sort these plastics safely, over 80% of e-waste plastic is sent to landfills or incinerators1.
+2. What Does the PolyLoop System Actually Do?
+PolyLoop is an open-source, digital materials platform that runs on a standard laptop equipped with a basic webcam1. It serves as an automated sorting and verification assistant through a four-step workflow:
+   1. Automated Visual Recognition: An operator holds a scrap plastic casing up to the webcam1. The computer vision system identifies what kind of appliance it is (e.g., a printer door, a computer chassis, or a CRT housing)1.
+   2. Mold Stamp Reading: The camera focuses on the plastic's interior surface, using image-filtering algorithms to locate and read tiny manufacturer mold markings (such as >ABS< or >PC+ABS<) that are embossed directly into the material1.
+   3. Physical-Chemical Diagnostic Fallback: If the plastic is scratched, painted, or broken and has no legible stamp, the system guides the operator through a quick test using common household liquids1. By observing whether a small scrap floats or sinks in plain tap water or salt water, and checking how it reacts to a single drop of citrus oil (d-limonene) or acetone, the system identifies the exact polymer class in under two minutes1.
+   4. Safety and Hazard Screening: The system calculates a contamination risk score based on the component's age and device category1. Casings flagged for high flame-retardant concentrations are safely rejected from recycling streams1.
+3. What Downstream Solution Does PolyLoop Provide?
+When a plastic sample is confirmed pure and non-toxic, PolyLoop generates precise processing instructions1. It outputs the exact pre-drying times, shredding requirements, and multi-zone heating temperatures needed to melt down the scrap and extrude it into high-grade 1.75 mm 3D printer filament1.
+Simultaneously, the system calculates the environmental savings achieved by diverting that specific batch from a landfill and displacing virgin fossil fuels, automatically compiling these metrics into a downloadable, certified Digital Material Passport PDF1.
+
+
+Operational Dimension
+	Conventional Disposal Paradigm
+	PolyLoop Closed-Loop Upcycling Paradigm
+	Material Identification
+	Casings appear identical; sorting requires industrial NIR/XRF spectroscopy costing over $30,0001.
+	Uses local computer vision, automated ISO mold stamp OCR, and guided benchtop density/solvent diagnostics1.
+	Chemical Safety Assurance
+	BFR-doped plastics are commingled into unsafe recycled products or landfilled indiscriminately1.
+	Evaluates age and appliance typology to identify and isolate halogenated flame retardants before remelting1.
+	Mechanical Integrity
+	Incompatible plastics are cross-contaminated, causing extreme brittleness and structural delamination1.
+	Segregates pure resin batches (ABS, HIPS, PC), preserving mechanical strength and layer bonding1.
+	Software Infrastructure
+	Dependent on proprietary cloud models, monthly API keys, or specialized external services1.
+	Built on a 100% free, locally executed open-source stack (YOLO, OpenCV, FastAPI, SQLite, React, ReportLab)1.
+	Economic Value Realization
+	E-waste plastic remains a disposal cost, ending up buried in landfills or burned in municipal incinerators1.
+	Upcycles discarded scrap into 3D printer filament worth $20 to $40 per kilogram1.
+	Circularity Traceability
+	Zero documentation on recycled polymer purity, chain of custody, or carbon offsets1.
+	Generates a tamper-evident, downloadable Material Passport PDF logging batch purity and net    savings1.
+	PolyLoop bridges the gap between electronic waste disposal and decentralized additive manufacturing1. By replacing capital-intensive analytical hardware with open-source software, image processing, and basic chemistry, the platform enables municipal facilities, educational institutions, and independent makers to safely transform hazardous electronic trash into a verified, circular manufacturing feedstock1.
+Works cited
+   1. polyloop - ewem green hackathon.pdf
+   2. Ecotoxicity of Plastics from Informal Waste Electric and Electronic, https://pmc.ncbi.nlm.nih.gov/articles/PMC7712128/
+   3. Chemical Recycling of Mixed Plastics in Electronic Waste Using, https://psecommunity.org/wp-content/plugins/wpor/includes/file/2302/LAPSE-2023.3157-1v1.pdf
+   4. A Review of Methods and Data on the Recycling of Plastics ... - MDPI, https://www.mdpi.com/2313-4321/10/4/148
+   5. Review of Reagent-Free Electronic Waste Recycling - MDPI, https://www.mdpi.com/2313-4321/11/2/27
+   6. Detection of Brominated Plastics from E-Waste by Short-Wave, https://www.mdpi.com/2313-4321/6/3/54
+   7. (PDF) Separation of virgin plastic polymers and post-consumer, https://www.researchgate.net/publication/353715618_Separation_of_virgin_plastic_polymers_and_post-consumer_mixed_plastic_waste_by_sinking-flotation_technique
+   8. Recycling of plastics with flame retardants of electronic waste, a, https://www.reward-weee.eu/downloads/EGG2012_Berlin_EFRA_REWARD_Recycling_Brominated_Plastics.pdf
+   9. ISO 11469 - iTeh Standards, https://cdn.standards.iteh.ai/samples/27946/5c3ba9b34fca4f4aaa7043e014810004/ISO-11469-2000.pdf
+   10. Recovery of Plastics from WEEE through Green Sink–Float Treatment, https://www.mdpi.com/1996-1944/17/12/3041
+   11. INTERNATIONAL STANDARD ISO 11469, https://cdn.standards.iteh.ai/samples/63434/f460de8a1261420a92f1195a8e329213/ISO-11469-2016.pdf
+   12. Plastic Part Marking – Overview Codes and Standards (incl, https://www.findoutaboutplastics.com/2020/12/plastic-part-marking-overview-codes-and.html
+   13. ASA vs HIPS: Outdoor Durability, Impact Resistance and Support Use, https://filamentcompare.com/asa-vs-hips/
+   14. The Product Carbon Footprint Guideline for the Chemical Industry, https://www.tfs-initiative.com/app/uploads/2024/03/TfS_PCF_guidelines_2024_EN_pages-low.pdf
+   15. Eco-profiles program and methodology PlasticsEurope Version 3.0, https://plasticseurope.org/wp-content/uploads/2021/12/PlasticsEurope-Ecoprofiles-program-and-methodology_V3.0.pdf
+   16. The impact of plastics on life cycle energy consumption and, https://plasticseurope.org/wp-content/uploads/2021/10/201009-Denkstatt-Report.pdf
+   17. Fundamental, technical and environmental overviews of plastic, https://pubs.rsc.org/gc/article/26/23/11444/851968/Fundamental-technical-and-environmental-overviews
+   18. Plastberegner.dk is developed by 2. - 2-0 LCA, https://lca-net.com/files/Plastindustrien_LCAreport_20121008.pdf
+   19. Mandatory percentage of recycled or bio-based plastic - CE Delft, https://cedelft.eu/wp-content/uploads/sites/2/2022/03/CE_Delft_200289_Mandatory_percentage_of_recycled_or_bio-based_plastic_Def.pdf
+   20. From Life Cycle Assessment to - RWTH Publications, https://publications.rwth-aachen.de/record/988442/files/988442.pdf
+   21. PAO Portable Lamp - Design Life-Cycle, http://www.designlife-cycle.com/pao-portable-lamp
+   22. unknown_url

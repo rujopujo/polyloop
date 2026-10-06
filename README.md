@@ -115,44 +115,39 @@ polyloop/
 ## 4. Local Execution & Quickstart Guide
 
 ### Prerequisites
-- Python 3.11+
-- Node.js 18+ and npm
+- Python 3.10+ (tested with Python 3.11 - 3.14)
+- Node.js 18+ (optional, only for React Vite development)
 
-### 1. Run Backend Server
+### Option A: Streamlit Web Suite (White Mode with E-Waste Encyclopedia)
+The Streamlit application features a full 6-module interactive workbench with in-app educational plastics and hazardous e-waste guides, 11 studio-grade iFixit samples, 5-stage OpenCV visualizer, sink-float diagnostic wizard, thermal calculators, LCA telemetry, and ReportLab PDF passport downloads:
 ```bash
-# Navigate to backend directory
-cd backend
+# Launch directly via Windows batch file:
+run_polyloop.bat
 
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run FastAPI server
-uvicorn app.main:app --reload --port 8000
+# Or run via Python CLI:
+streamlit run app.py
 ```
-- API Documentation: `http://localhost:8000/docs`
-- Healthcheck: `http://localhost:8000/api/health`
+- Streamlit Web Suite: `http://localhost:8501`
 
-### 2. Run Frontend Web Application
+### Option B: Local Executive Web Application (White Mode + Smooth UI/UX Animations)
+The standalone web interface is styled with a modern executive white-mode design system, fluid keyframe micro-animations (laser scan reticle, animated buoyancy tank, thermal pulse indicators), iFixit image gallery, and custom image upload support:
 ```bash
-# Open a new terminal in the frontend directory
+# Launch directly via Windows batch file:
+run_actual_site.bat
+
+# Or run via Python CLI:
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+```
+- Executive Web Application: `http://localhost:8000`
+- Interactive OpenAPI Docs: `http://localhost:8000/docs`
+
+### Option C: React 18 + Vite Development Server
+```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start Vite development server
 npm run dev
 ```
-- Web Application: `http://localhost:5173`
+- Vite Dev Server: `http://localhost:5173`
 
 ---
 

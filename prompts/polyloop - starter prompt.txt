@@ -1,0 +1,329 @@
+﻿System Analysis of the Project Blueprint & Research Documents
+The foundational architecture of PolyLoop (E-Waste Plastic Identification & Reuse System) addresses the circular economy gap where 20% to 30% of total e-waste mass consists of polymeric casings that are discarded due to polymer incompatibility and halogenated additive toxicity.
+The system operates across three verified scientific domains:
+1. Thermodynamic Miscibility & Degradation Mechanics: Macromolecular blending of post-consumer resins is constrained by positive Flory-Huggins interaction parameters ($\chi_{12} > 0$). Commingling polar Acrylonitrile Butadiene Styrene (ABS) with non-polar High-Impact Polystyrene (HIPS) causes severe micro-phase separation and over 70% loss in impact strength. Furthermore, Polycarbonate (PC) and PC-ABS blends are prone to hydrolytic chain scission if melt-extruded without precise moisture extraction below 0.02% to 0.03% (200 to 300 ppm).
+2. Regulatory & Hazard Screening: Brominated Flame Retardants (BFRs) such as DecaBDE, OctaBDE, and TBBPA, frequently combined with antimony trioxide ($Sb_2O_3$), release toxic polybrominated dioxins and furans ($PBDD/Fs$) when re-melted above 210°C. International standards (EU RoHS 2011/65/EU, EU POPs Regulation 2019/1021, and WEEE Directive 2012/19/EU Annex VII) strictly cap PBDEs at 500–1,000 ppm. The system predicts BFR risk across appliance vintages (e.g., pre-2006 CRT units pose a 70%–90% risk, whereas modern post-2016 laptops pose $<10\%$ risk).
+3. Three-Tiered Identification & Closed-Loop Upcycling: Replaces $30,000 NIR/XRF spectroscopy systems using a 100% free software stack:
+   * Stage 1 (Object Detection): Ultralytics YOLOv8n classifies casing types (CRT housing, PC bezel, printer door).
+   * Stage 2 (Embossed Stamp OCR): OpenCV image filtering (Grayscale $\rightarrow$ CLAHE $\rightarrow$ Bilateral Filter $\rightarrow$ Morphological Gradient $\rightarrow$ Otsu Binarization) enhances low-contrast reliefs for EasyOCR parsing of ISO 11469 / ISO 1043 codes (>ABS<, >PS-HI<, >PC+ABS<, >ABS-FR(40)<).
+   * Stage 3 (Diagnostic Decision Wizard): Stratification fallback using specific gravity in tap water ($\rho = 1.00\text{ g/cm}^3$), 10% NaCl ($\rho = 1.07\text{ g/cm}^3$), and dense brine ($\rho = 1.15\text{ g/cm}^3$), combined with acetone and d-limonene spot solubility tests.
+   * Stage 4 (Circular Upcycling & LCA Engine): Outputs exact 3-zone extruder temperatures (170°C–295°C), heated bed specs (85°C–130°C), and ISO 14040/14044 net carbon avoidance ($\Delta E_{\text{avoided}} = +3.02\text{ kg CO}_2\text{e/kg}$ for ABS, $+6.02\text{ kg CO}_2\text{e/kg}$ for PC) compiled into a downloadable ReportLab PDF Material Passport.
+Master Agent IDE Prompt (Claude Code / Antigravity)
+Copy and paste the prompt below directly into your Agent IDE.
+
+
+
+
+
+
+Markdown
+# MISSION BRIEF: BUILD "POLYLOOP" — ZERO-COST E-WASTE PLASTIC IDENTIFICATION & REUSE SYSTEM
+
+You are an expert Principal Full-Stack AI Engineer, Computer Vision Specialist, and Sustainable Materials Scientist. Your mission is to build and deliver the complete, production-grade repository for **PolyLoop**: an end-to-end, zero-cost, software-driven E-Waste Plastic Identification, BFR Hazard Screening, and Closed-Loop Upcycling System.
+
+## ZERO-COST & LOCAL EXECUTION MANDATE
+- You MUST NOT use any commercial, paid, or cloud APIs (NO OpenAI, NO AWS Bedrock, NO Google Cloud Vision, NO paid vector DBs).
+- The entire application MUST run locally at ZERO EXPENSE ($0 / ₹0) using free, open-source libraries: Python 3.11+, FastAPI, OpenCV, Ultralytics YOLOv8, EasyOCR, SQLite, SQLAlchemy, React 18, Vite, Tailwind CSS, Lucide React, Recharts, and ReportLab.
+- Camera input must support both a local live HTML5/WebRTC webcam feed and an image upload/sample selector.
+
+---
+
+## 1. SYSTEM ARCHITECTURE & MATHEMATICAL SPECIFICATIONS
+
+### A. Computer Vision & OCR Image Pipeline (ISO 11469 / ISO 1043)
+1. **Component Classification:** Use Ultralytics YOLOv8n to identify e-waste components: `monitor_backing`, `pc_chassis`, `printer_panel`, `crt_housing`, `keyboard_casing`. If model weights are uninitialized, provide an automated synthetic/lightweight training/export script and fallback mock heuristic inference based on aspect ratio/features.
+2. **OpenCV Contrast Enhancement for Low-Profile Mold Stamps:**
+   - Input: Crop ROI from user bounding box or full image.
+   - Step 1: Grayscale conversion: `cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)`
+   - Step 2: Contrast Limited Adaptive Histogram Equalization (CLAHE): `cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))`
+   - Step 3: Bilateral Denoising: `cv2.bilateralFilter(enhanced, d=9, sigmaColor=75, sigmaSpace=75)`
+   - Step 4: Morphological Gradient: `cv2.morphologyEx(blur, cv2.MORPH_GRADIENT, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))`
+   - Step 5: Otsu Binarization: `cv2.threshold(grad, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)`
+3. **EasyOCR & Regex Token Extraction:**
+   - Ingest the binarized image into EasyOCR (`reader.readtext`).
+   - Extract standardized ISO tokens with regex: `r'>\s*([A-Z0-9|+|\-|\(|\)]+)\s*<'` and secondary fallback matching for unbracketed abbreviations: `ABS`, `HIPS`, `PS-HI`, `PC`, `PC+ABS`, `PC-ABS`, `PP`, `HDPE`, `PVC`.
+   - Detect flame-retardant ISO 1043-4 codes: `FR(40)` (Halogenated + Sb2O3), `FR(14)` / `FR(52)` (Phosphorus/Red P).
+
+### B. Polymer Knowledge Base (PKB) & Physical Properties Dictionary
+Embed a comprehensive domain knowledge dictionary:
+- **ABS (Acrylonitrile Butadiene Styrene):** Density: 1.05–1.08 g/cm³, $T_g$: 105°C, Tap water: Sinks, 10% NaCl: Sinks, Dense brine (1.15): Floats, Acetone: Dissolves rapidly into tacky paste, d-Limonene: Inert, Flame: Yellow with blue base, acrid burnt rubber scent.
+- **HIPS (High-Impact Polystyrene):** Density: 1.03–1.05 g/cm³, $T_g$: 100°C, Tap water: Sinks slowly, 10% NaCl: Floats, Dense brine: Floats, Acetone: Swells and softens, d-Limonene: Dissolves completely into clear gel, Flame: Orange with soot webs, sweet marzipan/styrene odor.
+- **PC (Polycarbonate):** Density: 1.20–1.22 g/cm³, $T_g$: 147°C, Tap water: Sinks rapidly, 10% NaCl: Sinks rapidly, Dense brine: Sinks rapidly, Acetone: Resistant (minor surface haze), d-Limonene: Inert, Flame: Self-extinguishing, faint phenolic odor.
+- **PC-ABS Blend:** Density: 1.10–1.15 g/cm³, $T_g$: 110–125°C, Tap water: Sinks rapidly, 10% NaCl: Sinks rapidly, Dense brine: Neutral buoyancy, Acetone: Slow surface softening, d-Limonene: Inert, Flame: Yellow-orange, slight self-extinguishing behavior.
+- **Polyolefins (PP/HDPE):** Density: 0.90–0.96 g/cm³, Tap water: Floats.
+- **BFR-Contaminated Plastic:** Density: 1.18–1.35 g/cm³, Tap water: Sinks, 10% NaCl: Sinks, Dense brine: Sinks, Beilstein copper flame test: Bright emerald green flame.
+
+### C. BFR & RoHS Hazard Scoring Engine
+Calculate risk probability ($0.0 \text{ to } 1.0$) using deterministic rules:
+- Appliance Typology & Vintage:
+  - `crt_housing` / Pre-2006 TVs: Base risk = 0.85 (Critical Hazard: DecaBDE/OctaBDE > 2000 ppm) -> **Action: REJECT for mechanical upcycling; route to WEEE hazardous disposal.**
+  - `laser_printer` / Copiers (1998–2012): Base risk = 0.50 (High Hazard: Internal fuser assemblies contain TBBPA) -> **Action: Require mandatory density + Beilstein verification.**
+  - `desktop_chassis` (2000–2015): Base risk = 0.35 (Moderate Hazard).
+  - `flat_display` / Laptops (2016–Present): Base risk = 0.08 (Low Hazard: Organophosphorus alternatives).
+  - `keyboard_mouse_router` (2010–Present): Base risk = 0.04 (Minimal Hazard).
+- ISO Code Overrides: If OCR contains `FR(40)`, set BFR Risk = 0.99 (Immediate Regulatory Rejection).
+- Regulatory limits enforced: EU RoHS (< 1000 ppm / 0.1%), EU POPs (< 500 ppm), WEEE Annex VII selective extraction.
+
+### D. Upcycling Rheology & 3D Printing Filament Thermal Calculator
+For verified non-toxic polymers, compute optimal mechanical parameters:
+- **Pre-Drying (Hydrolytic Scission Prevention):**
+  - ABS: 80°C for 3–4 hours, max moisture < 0.05% (500 ppm).
+  - HIPS: 70°C for 2–3 hours, max moisture < 0.05% (500 ppm).
+  - PC: 120°C for 4–6 hours, max moisture < 0.02% (200 ppm).
+  - PC-ABS: 100°C for 3–4 hours, max moisture < 0.03% (300 ppm).
+- **Single-Screw Extrusion (1.75 mm ± 0.05 mm Target, 3:1 L/D Screw):**
+  - ABS: Feed Z1: 185–195°C, Transition Z2: 215–225°C, Die Z3: 225–235°C, Water bath: 50–60°C.
+  - HIPS: Feed Z1: 170–180°C, Transition Z2: 195–210°C, Die Z3: 210–225°C, Water bath: 40–50°C.
+  - PC: Feed Z1: 230–245°C, Transition Z2: 265–275°C, Die Z3: 280–295°C, Water bath: 70–80°C.
+  - PC-ABS: Feed Z1: 210–220°C, Transition Z2: 235–245°C, Die Z3: 250–265°C, Water bath: 60–70°C.
+- **FDM 3D Printing Parameters:**
+  - ABS: Nozzle 230–245°C, Bed 95–110°C (PEI + Dimafix), Chamber 40–50°C, Fan 0–15%, Shrinkage 0.4–0.7%.
+  - HIPS: Nozzle 220–240°C, Bed 85–100°C, Chamber 35–45°C, Fan 20–35%, Shrinkage 0.3–0.6%.
+  - PC: Nozzle 280–305°C (All-Metal), Bed 115–130°C, Active Chamber 65–80°C, Fan 0%, Shrinkage 0.6–0.9%.
+  - PC-ABS: Nozzle 255–275°C, Bed 100–115°C, Chamber 45–60°C, Fan 10–20%, Shrinkage 0.5–0.7%.
+
+### E. ISO 14040/14044 Carbon Avoidance Life Cycle Assessment (LCA)
+Calculate net Global Warming Potential offset:
+$$\Delta E_{\text{avoided}} = M_{\text{recycled}} \cdot (EF_{\text{virgin}} - EF_{\text{recycling}}) + M_{\text{diverted}} \cdot EF_{\text{landfill\_credit}} - M_{\text{recycled}} \cdot EF_{\text{transp}}$$
+Constants (kg CO₂e / kg):
+- $EF_{\text{recycling}} = 0.75$
+- $EF_{\text{landfill\_credit}} = 0.05$
+- $EF_{\text{transp}} = 0.08$
+- Total Process Burden: $EF_{\text{recycling}} + EF_{\text{transp}} - EF_{\text{landfill\_credit}} = 0.78 \text{ kg CO}_2\text{e/kg}$ (or Net Burden = $0.83 \text{ kg CO}_2\text{e/kg}$ without credit).
+- Virgin Resin Cradle-to-Gate ($EF_{\text{virgin}}$):
+  - ABS: 3.80 kg CO₂e/kg (Net Avoided: +3.02 kg CO₂e/kg; ~2.1 L crude oil)
+  - HIPS: 3.35 kg CO₂e/kg (Net Avoided: +2.57 kg CO₂e/kg; ~1.8 L crude oil)
+  - PC: 6.80 kg CO₂e/kg (Net Avoided: +6.02 kg CO₂e/kg; ~3.9 L crude oil)
+  - PC-ABS: 5.10 kg CO₂e/kg (Net Avoided: +4.32 kg CO₂e/kg; ~2.9 L crude oil)
+
+### F. Digital Material Passport (PDF Generation via ReportLab)
+Generate an official multi-section PDF document containing:
+1. Header: PolyLoop Digital Material Passport & Batch Verification ID.
+2. QR Code / Hash Stamp of verification payload.
+3. Casing & Origin Metadata: Appliance type, estimated year, initial hazard index.
+4. Identification Audit Trail: Method used (Vision YOLO / OCR Stamp / Sink-Float Wizard), detected polymer, ISO code.
+5. Chemical & BFR Compliance: RoHS (Passed < 0.1%), POPs (< 500 ppm), WEEE clearance status.
+6. Processing Datasheet: Moisture limits, drying profile, 3-zone extruder temps, 3D printing settings.
+7. LCA Impact Statement: Net CO₂e avoided (kg), equivalent crude oil saved (L), landfill mass diverted.
+
+---
+
+## 2. PROJECT REPOSITORY STRUCTURE
+
+Implement this exact directory hierarchy:
+
+```text
+polyloop/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   └── constants.py
+│   │   ├── database/
+│   │   │   ├── __init__.py
+│   │   │   ├── session.py
+│   │   │   └── models.py
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   ├── scan.py
+│   │   │   ├── polymer.py
+│   │   │   └── batch.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── vision_service.py
+│   │   │   ├── ocr_service.py
+│   │   │   ├── polymer_kb.py
+│   │   │   ├── bfr_engine.py
+│   │   │   ├── thermal_calculator.py
+│   │   │   ├── lca_engine.py
+│   │   │   └── passport_pdf.py
+│   │   └── routers/
+│   │       ├── __init__.py
+│   │       ├── scan.py
+│   │       ├── diagnostic.py
+│   │       ├── batch.py
+│   │       └── passport.py
+│   ├── samples/
+│   │   └── test_stamps/
+│   ├── requirements.txt
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_ocr.py
+│       ├── test_bfr.py
+│       ├── test_lca.py
+│       └── test_api.py
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   └── src/
+│       ├── main.jsx
+│       ├── App.jsx
+│       ├── index.css
+│       ├── components/
+│       │   ├── Navbar.jsx
+│       │   ├── CameraHUD.jsx
+│       │   ├── ScanResultsCard.jsx
+│       │   ├── DiagnosticWizard.jsx
+│       │   ├── ThermalSpecsCard.jsx
+│       │   ├── LCAMetricsCard.jsx
+│       │   ├── BatchManager.jsx
+│       │   └── PassportModal.jsx
+│       ├── services/
+│       │   └── api.js
+│       └── utils/
+│           └── formatting.js
+└── README.md
+
+3. BACKEND IMPLEMENTATION DETAILS
+Requirements (backend/requirements.txt)
+
+
+
+
+
+
+Plaintext
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+sqlalchemy>=2.0.28
+opencv-python-headless>=4.9.0.80
+easyocr>=1.7.1
+ultralytics>=8.1.0
+torch>=2.2.0
+torchvision>=0.17.0
+numpy>=1.26.0
+reportlab>=4.1.0
+python-multipart>=0.0.9
+pytest>=8.0.0
+ruff>=0.3.0
+
+Models & Schema Specifications
+* SQLAlchemy Models (backend/app/database/models.py):
+   * ScanRecord: id (UUID/str), created_at (datetime), casing_type (str), vintage_era (str), identification_method (str: 'OCR_STAMP' | 'SINK_FLOAT_WIZARD' | 'VISION_HEURISTIC'), detected_polymer (str: 'ABS', 'HIPS', 'PC', 'PC-ABS', etc.), confidence (float), iso_stamp_text (str, nullable), bfr_risk_score (float), rohs_compliant (bool), status (str: 'APPROVED' | 'REJECTED'), recommended_action (str).
+   * BatchRecord: id (str), name (str), created_at (datetime), polymer_type (str), total_mass_kg (float), usable_mass_kg (float), rejected_mass_kg (float), co2_avoided_kg (float), oil_saved_liters (float), passport_pdf_path (str, nullable).
+   * BatchItem: Relates ScanRecord to BatchRecord.
+Core Python Services
+1. polymer_kb.py: Complete dictionary containing the physical constants, density ranges, solvent solubility matrices, drying regimes, extrusion boundaries, and carbon emission factors described in Section 1.
+2. ocr_service.py:
+   * Ingests image bytes / numpy array.
+   * Applies the 5-step OpenCV pipeline (Grayscale -> CLAHE -> Bilateral Filter -> Morph Gradient -> Otsu).
+   * Runs EasyOCR.
+   * Runs regex extraction for ISO 11469 symbols (>ABS<, >PS-HI<, >PC+ABS<, >ABS-FR(40)<).
+   * Returns parsed polymer, confidence score, raw OCR text, and detected flame retardant codes.
+3. bfr_engine.py:
+   * Computes quantitative risk score based on casing category, era of manufacture, color, and OCR tags.
+   * Outputs boolean RoHS/WEEE compliance flag, risk tier (MINIMAL, LOW, MODERATE, HIGH, CRITICAL), and handling protocol.
+4. thermal_calculator.py:
+   * Ingests identified polymer and returns comprehensive JSON: pre-drying temp and time, maximum permissible moisture ppm, 3-zone extruder temperatures, cooling bath temp, FDM nozzle/bed temperatures, chamber requirement, cooling fan percentage, and volumetric thermal shrinkage rate.
+5. lca_engine.py:
+   * Functions calculate_item_impact(polymer, mass_kg) and calculate_batch_impact(items_list).
+   * Computes net avoided GWP ($kg \text{ CO}_2\text{e}$), crude oil displacement (liters), and coal burning offset equivalent ($1\text{ kg CO}_2\text{e} \approx 0.49\text{ kg coal}$).
+6. passport_pdf.py:
+   * Builds clean, production-styled PDF using ReportLab SimpleDocTemplate, Table, TableStyle, and Paragraph.
+   * Uses professional styling: dark slate headers, clean grid borders, color-coded badges (Green for RoHS Passed, Red for BFR Warning), and detailed engineering property tables.
+REST Endpoints (backend/app/main.py & routers)
+* POST /api/scan/casing: Upload image -> YOLO casing classification + baseline vintage risk.
+* POST /api/scan/stamp: Upload ROI image -> OpenCV preprocessing + EasyOCR stamp recognition + Polymer match + BFR risk check.
+* POST /api/diagnostic/wizard: Ingest stepwise answers (density observations in water/saline, acetone spot reaction, d-limonene reaction, Beilstein flame color) -> deterministic polymer identification + confidence.
+* POST /api/batches: Create a new recycling batch session, add verified scans, and aggregate total mass.
+* GET /api/batches/{id}/metrics: Return live LCA and circularity charts (composition %, total kg CO₂e offset).
+* GET /api/passport/{id}/pdf: Generate and stream the downloadable ReportLab PDF Material Passport.
+* GET /api/kb/polymers: Return all reference polymer profiles and thermal specs.
+4. FRONTEND IMPLEMENTATION DETAILS (REACT + VITE + TAILWIND)
+Design & Theme
+* Industrial Modern Dark-Mode Theme (bg-slate-950, bg-slate-900, borders border-slate-800, text text-slate-100, accents emerald-500, cyan-500, amber-500, rose-500).
+* Responsive, uncluttered desktop-first layout with smooth tab navigation:
+   1. Live Camera & Stamp Scanner (Webcam HUD + File Upload + ROI Cropper).
+   2. Guided Diagnostic Wizard (Interactive sink-float decision tree).
+   3. Thermal & Slicing Specifications (Extruder zones, drying times, FDM parameters).
+   4. Batch Analytics & LCA Telemetry (Recharts graphs for mass distribution and carbon offset).
+   5. Digital Material Passport Archive (Table of scanned batches with instant PDF download buttons).
+Key Frontend Components
+1. CameraHUD.jsx:
+   * WebRTC webcam stream with toggle to front/rear camera or pause/snapshot.
+   * Fallback button: "Load Sample E-Waste Casing" with pre-bundled test images (e.g., keyboard ABS casing, old CRT monitor back, laptop bezel).
+   * Targeting reticle and canvas overlay drawing bounding boxes.
+2. DiagnosticWizard.jsx:
+   * Dynamic step-by-step diagnostic questionnaire for un-stamped plastics:
+      * Step 1: Tap Water Test (Floats = Polyolefin PP/PE | Sinks = Proceed).
+      * Step 2: 10% NaCl Saline Test (Floats = HIPS candidate | Sinks = ABS/PC candidate).
+      * Step 3: Acetone Spot Reaction (Instant tacky paste = ABS | Slow surface swell = HIPS | Resistant = PC).
+      * Step 4: Optional d-Limonene Test (Dissolves into gel = HIPS | Inert = ABS/PC).
+      * Step 5: Optional Beilstein Copper Wire Flame Test (Green flame = BFR/Halogen warning).
+   * Generates confidence score and button to push identified item into current batch.
+3. ThermalSpecsCard.jsx:
+   * Visual 3D printer extruder graphic showing Zone 1 (Feed), Zone 2 (Transition), and Zone 3 (Die) temperature targets.
+   * Drying chamber timer gauge and FDM bed/nozzle recommendation card.
+4. LCAMetricsCard.jsx:
+   * Real-time Recharts displays:
+      * Bar Chart: Virgin Resin vs PolyLoop Process Carbon Footprint.
+      * Doughnut/Pie Chart: Current batch composition breakdown (ABS % vs HIPS % vs PC-ABS %).
+      * KPI Stat Cards: Total kg CO₂e Prevented, Liters Crude Oil Equivalent Saved, Landfill Mass Diverted.
+5. PassportModal.jsx:
+   * Fullscreen preview modal showing the generated passport details with a 1-click Download PDF trigger communicating with /api/passport/{id}/pdf.
+5. REPOSITORY GOVERNANCE, CI/CD & TESTING
+1. GitHub Actions Workflow (.github/workflows/ci.yml):
+   * Triggers on push and pull requests against develop and main.
+   * Sets up Python 3.11, installs backend requirements, runs ruff check ., and executes pytest tests/.
+   * Sets up Node 20, runs npm install, and verifies npm run build.
+2. Automated Unit Tests (backend/tests/):
+   * test_ocr.py: Tests regex parsing against strings like >ABS<, >PS-HI<, >PC+ABS<, >ABS-FR(40)<, and noisy OCR artifacts.
+   * test_bfr.py: Validates that CRT appliances and FR(40) inputs result in RoHS rejection and critical risk alerts.
+   * test_lca.py: Validates carbon offset equations against standard values (e.g., 50 kg ABS yields exactly +151.0 kg CO₂e avoided).
+   * test_api.py: Tests FastAPI endpoint response codes and validation rules.
+6. EXECUTION INSTRUCTIONS FOR THE AGENT
+When this prompt is provided:
+1. Initialize the monorepo directory tree structure immediately.
+2. Create all backend files, models, routers, and services with clean, fully implemented, runnable Python code. Ensure zero placeholder stubs.
+3. Build the sample test images generator in backend/samples/ using OpenCV to programmatically synthesize realistic synthetic casing stamp images with text >ABS<, >HIPS<, and >PC+ABS< for instant testing without needing external downloads.
+4. Create the complete frontend application inside frontend/ with working Vite configuration, Tailwind styling, React components, and mock fallback data so the entire UI is interactive immediately even before starting the backend.
+5. Provide the exact shell commands to run both the FastAPI server (uvicorn app.main:app --reload --port 8000) and the Vite client (npm run dev).
+
+
+
+
+
+
+---
+
+### Step-by-Step Execution Guide for Claude Code / Antigravity
+
+1. **Initialize the Workspace:**
+  Open your terminal in an empty directory and launch your agent:
+  ```bash
+  mkdir polyloop && cd polyloop
+  git init
+  git branch -M main
+  git checkout -b develop
+
+2. Execute Claude Code / Antigravity:
+   * Feed the prompt block above into the agent.
+   * The agent will build the files in backend/ and frontend/, configure your SQLite database, implement the OpenCV/EasyOCR pipeline, and configure the React HUD.
+3. Run the Backend:
+Bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+4. Run the Frontend:
+Bash
+cd ../frontend
+npm install
+npm run dev
+
+5. Verify the Demo:
+   * Open http://localhost:5173 in your browser.
+   * Allow webcam permissions or select a sample synthetic casing.
+   * Inspect the live OpenCV thresholding canvas, check the automated BFR risk score, test the Sink-Float wizard, and click Download Digital Material Passport to receive the ReportLab-generated batch PDF.
