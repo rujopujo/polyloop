@@ -48,66 +48,59 @@ polyloop/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                     # GitHub Actions (Pytest, Ruff, Vite build)
+├── .streamlit/
+│   └── config.toml                    # Streamlit executive light-theme configuration
 ├── backend/
-│   ├── app/
-│   │   ├── core/
-│   │   │   ├── config.py              # Environment settings & storage paths
-│   │   │   └── constants.py           # Regulatory limits, ISO codes, LCA constants
-│   │   ├── database/
-│   │   │   ├── models.py              # ScanRecord, BatchRecord, BatchItem
-│   │   │   └── session.py             # SQLite session management
-│   │   ├── schemas/
-│   │   │   ├── scan.py                # Pydantic scan & diagnostic models
-│   │   │   ├── polymer.py             # Polymer Knowledge Base schemas
-│   │   │   └── batch.py               # Batch aggregation & LCA schemas
-│   │   ├── services/
-│   │   │   ├── vision_service.py      # YOLOv8n classifier + heuristic fallback
-│   │   │   ├── ocr_service.py         # OpenCV 5-step pipeline + EasyOCR
-│   │   │   ├── polymer_kb.py          # Domain knowledge dictionary
-│   │   │   ├── bfr_engine.py          # RoHS/POPs compliance & BFR hazard scoring
-│   │   │   ├── thermal_calculator.py  # 3-zone extruder & FDM parameters
-│   │   │   ├── lca_engine.py          # ISO 14040 carbon offset mathematics
-│   │   │   └── passport_pdf.py        # ReportLab PDF passport generator
-│   │   ├── routers/
-│   │   │   ├── scan.py                # POST /api/scan/casing, POST /api/scan/stamp
-│   │   │   ├── diagnostic.py          # POST /api/diagnostic/wizard
-│   │   │   ├── batch.py               # POST /api/batches, GET /api/batches/{id}/metrics
-│   │   │   └── passport.py            # GET /api/passport/{id}/pdf, GET /api/kb/polymers
-│   │   └── main.py                    # FastAPI root with demo seed
-│   ├── samples/
-│   │   ├── generate_samples.py        # OpenCV synthetic stamp image generator
-│   │   └── test_stamps/               # Synthesized test stamps (>ABS<, >PC+ABS<, etc.)
-│   ├── requirements.txt               # Free & open-source Python dependencies
+│   ├── app/                           # Modular FastAPI application architecture
+│   │   ├── core/                      # Environment settings & regulatory constants
+│   │   ├── database/                  # SQLite models & database session
+│   │   ├── routers/                   # REST endpoints (scan, diagnostic, batch, passport)
+│   │   ├── schemas/                   # Pydantic schemas
+│   │   ├── services/                  # Specialized computer vision & LCA services
+│   │   └── main.py                    # Modular FastAPI root with demo seed
+│   ├── samples/                       # Sample stamp datasets
+│   ├── tests/                         # Pytest test suites (20 tests: OCR, BFR, LCA, API)
+│   ├── main.py                        # Standalone FastAPI launcher & static file server
 │   ├── pyproject.toml                 # Ruff & Pytest configuration
-│   └── tests/
-│       ├── test_ocr.py                # ISO 11469 regex parser validation
-│       ├── test_bfr.py                # RoHS rejection & CRT hazard testing
-│       ├── test_lca.py                # Carbon offset equations validation
-│       └── test_api.py                # FastAPI endpoint response testing
-├── frontend/
-│   ├── index.html
-│   ├── package.json                   # React 18, Vite, Tailwind CSS, Recharts
-│   ├── vite.config.js                 # Dev server with backend proxy
-│   ├── tailwind.config.js             # Industrial dark palette tokens
-│   └── src/
-│       ├── components/
-│       │   ├── Navbar.jsx             # System branding & status indicator
-│       │   ├── CameraHUD.jsx          # WebRTC feed, OpenCV canvas, sample picker
-│       │   ├── ScanResultsCard.jsx    # Verification badges & BFR risk gauge
-│       │   ├── DiagnosticWizard.jsx   # 5-step sink-float decision tree
-│       │   ├── ThermalSpecsCard.jsx   # 3-zone extruder graphic & drying gauges
-│       │   ├── LCAMetricsCard.jsx     # Recharts carbon footprint & composition charts
-│       │   ├── BatchManager.jsx       # Batch aggregation & scan queue
-│       │   └── PassportModal.jsx      # Digital Material Passport viewer & PDF trigger
-│       ├── services/
-│       │   └── api.js                 # API client with resilient fallbacks
-│       ├── utils/
-│       │   └── formatting.js          # Unit formatters & color maps
-│       ├── App.jsx                    # Top tab shell & shared state
-│       ├── index.css                  # Dark mode industrial styling
-│       └── main.jsx
-├── .gitignore
-└── README.md
+│   └── requirements.txt               # Backend Python dependencies
+├── core/                              # Shared domain engines (Streamlit & Backend)
+│   ├── bfr_engine.py                  # BFR hazard scoring & RoHS/POPs compliance
+│   ├── lca_engine.py                  # ISO 14040 carbon offset & energy avoidance
+│   ├── passport_generator.py          # ReportLab Digital Material Passport PDF builder
+│   ├── polymer_kb.py                  # Polymer dictionary & appliance typologies
+│   ├── thermal_calculator.py          # Extruder temperatures & FDM parameters
+│   └── vision_engine.py               # 5-stage OpenCV contrast enhancement pipeline
+├── docs/                              # Project documentation, research & presentation
+│   ├── presentation/
+│   │   └── polyloop_hackathon_pitch.pdf   # Hackathon competition slide deck
+│   ├── prompts/
+│   │   ├── polyloop_starter_prompt.docx   # Starter system prompt specifications
+│   │   ├── polyloop_starter_prompt.pdf
+│   │   └── polyloop_starter_prompt.txt
+│   └── research/
+│       ├── E-Waste_Plastic_Project_Blueprint.md   # Comprehensive technical blueprint
+│       ├── E-Waste_Plastic_Project_Blueprint.pdf
+│       └── E-Waste_Plastic_Project_Blueprint.txt
+├── frontend/                          # Local web interfaces
+│   ├── src/                           # React 18 + Vite + Tailwind component tree
+│   ├── app.js                         # Standalone interactive client engine
+│   ├── index.html                     # React / Vite entry point
+│   ├── index_standalone.html          # Executive white-mode web interface
+│   ├── style.css                      # White-mode design system & smooth animations
+│   ├── package.json
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── sample_images/                     # Curated studio-grade iFixit e-waste teardown photos
+├── scripts/                           # Automation & data acquisition utilities
+│   ├── download_ifixit_samples.py     # Curates studio teardowns from iFixit CDN
+│   ├── download_real_samples.py       # Fetches open-source e-waste images from Wikimedia
+│   └── generate_samples.py            # OpenCV synthetic mold stamp generator
+├── app.py                             # Full-featured Streamlit web application
+├── requirements.txt                   # Root Python dependencies
+├── run_actual_site.bat                # Windows launcher for executive web app (port 8000)
+├── run_polyloop.bat                   # Windows launcher for Streamlit app (port 8501)
+├── README.md
+└── .gitignore
 ```
 
 ---

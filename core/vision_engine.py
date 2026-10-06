@@ -4,8 +4,10 @@ Implements the 5-stage OpenCV contrast enhancement pipeline for reading low-cont
 embossed ISO 11469 / ISO 1043 relief stamps on dark or textured post-consumer casings.
 """
 import re
+
 import cv2
 import numpy as np
+
 
 def run_opencv_pipeline(image_input):
     """

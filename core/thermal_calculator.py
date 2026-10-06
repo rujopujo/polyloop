@@ -5,6 +5,7 @@ and FDM 3D printer slicer configurations for post-consumer recycled e-waste resi
 """
 from core.polymer_kb import POLYMERS
 
+
 def get_thermal_specs(polymer_key):
     """
     Returns complete thermodynamic and extrusion profile for the given polymer.

@@ -6,13 +6,20 @@ extrusion processing parameters, and ISO 14040/14044 LCA metrics.
 """
 import io
 import time
-from reportlab.lib.pagesizes import letter
+
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    HRFlowable,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
 )
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
 
 def generate_passport_pdf(batch_id, casing_type, detected_polymer, iso_stamp,
                           bfr_risk, rohs_compliant, thermal_specs, lca_metrics, mass_kg=1.0):

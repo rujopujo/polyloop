@@ -4,11 +4,16 @@ Includes simulated plastic textures, molded ventilation grills, embossed ISO 114
 recessed screw ports, model serial stickers, and lighting shadows.
 """
 import os
+
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw
 
-def create_synthetic_samples(output_dir="sample_images"):
+DEFAULT_OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sample_images"))
+
+def create_synthetic_samples(output_dir=None):
+    if output_dir is None:
+        output_dir = DEFAULT_OUTPUT_DIR
     os.makedirs(output_dir, exist_ok=True)
     
     # 1. Vintage CRT TV / Monitor Backing (1998 Dell / Sony Style) - High BFR Candidate

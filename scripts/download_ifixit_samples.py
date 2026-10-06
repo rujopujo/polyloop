@@ -3,6 +3,7 @@ Download curated, studio-quality e-waste teardown photos from iFixit's official 
 Replaces generic/scraped photos with high-resolution, focused e-waste casing and stamp photographs.
 """
 import os
+
 import requests
 from PIL import Image
 
@@ -128,13 +129,17 @@ def clean_old_generic_samples(target_dir="sample_images"):
             try:
                 os.remove(fp)
                 print(f"Removed previous generic file: {fn}")
-            except Exception as e:
+            except OSError as e:
                 print(f"Could not remove {fn}: {e}")
 
-def download_curated_ifixit(output_dir="sample_images"):
+DEFAULT_OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sample_images"))
+
+def download_curated_ifixit(output_dir=None):
+    if output_dir is None:
+        output_dir = DEFAULT_OUTPUT_DIR
     os.makedirs(output_dir, exist_ok=True)
     clean_old_generic_samples(output_dir)
-    
+
     print("\nDownloading 11 curated, studio-grade teardown photos from iFixit CDN...")
     downloaded = 0
     for item in CURATED_IFIXIT_CATALOG:
@@ -149,7 +154,7 @@ def download_curated_ifixit(output_dir="sample_images"):
                 downloaded += 1
             else:
                 print(f"[FAILED] HTTP {r.status_code} for {item['filename']}")
-        except Exception as e:
+        except (OSError, requests.RequestException) as e:
             print(f"[ERROR] {item['filename']}: {e}")
             
     print(f"\nCompleted: {downloaded} / {len(CURATED_IFIXIT_CATALOG)} curated iFixit images downloaded successfully.")

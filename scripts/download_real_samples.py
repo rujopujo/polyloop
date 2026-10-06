@@ -3,6 +3,7 @@ Download real-world open-licensed e-waste and polymer images from Wikimedia Comm
 into sample_images/ using 800px web thumbnails for speed.
 """
 import os
+
 import requests
 
 HEADERS = {'User-Agent': 'PolyLoopBot/1.0 (academic research; info@polyloop.org)'}
@@ -45,7 +46,11 @@ SEARCH_TARGETS = [
     }
 ]
 
-def fetch_real_samples(output_dir="sample_images"):
+DEFAULT_OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sample_images"))
+
+def fetch_real_samples(output_dir=None):
+    if output_dir is None:
+        output_dir = DEFAULT_OUTPUT_DIR
     os.makedirs(output_dir, exist_ok=True)
     api_url = "https://commons.wikimedia.org/w/api.php"
     downloaded = 0
@@ -69,7 +74,7 @@ def fetch_real_samples(output_dir="sample_images"):
             data = r.json()
             pages = data.get('query', {}).get('pages', {})
 
-            for pid, pdata in pages.items():
+            for pdata in pages.values():
                 img_info = pdata.get('imageinfo', [{}])[0]
                 thumb_url = img_info.get('thumburl') or img_info.get('url', '')
 
@@ -81,7 +86,7 @@ def fetch_real_samples(output_dir="sample_images"):
                         print(f"[OK] Downloaded: {item['save_name']} ({len(img_resp.content)} bytes)")
                         downloaded += 1
                         break
-        except Exception as e:
+        except (OSError, requests.RequestException) as e:
             print(f"[ERR] Failed for {item['query']}: {e}")
 
     print(f"\nDone! Downloaded {downloaded} real images to {output_dir}/")

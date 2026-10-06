@@ -5,23 +5,25 @@ Physical Diagnostic Wizard, Thermal Rheology Calculator, ISO 14040 LCA Engine,
 Digital Material Passport PDF Generation, and E-Waste Knowledge Base.
 """
 import os
-import io
 import time
 import uuid
-import streamlit as st
-import numpy as np
-import pandas as pd
-from PIL import Image
-import plotly.graph_objects as go
+
 import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
+from PIL import Image
+
+from core.bfr_engine import evaluate_bfr_hazard
+from core.lca_engine import calculate_batch_lca, calculate_item_lca
+from core.passport_generator import generate_passport_pdf
 
 # Import core modules
-from core.polymer_kb import POLYMERS, APPLIANCE_PROFILES
-from core.vision_engine import run_opencv_pipeline, parse_iso_tokens, detect_sample_casing_metadata
-from core.bfr_engine import evaluate_bfr_hazard
 from core.thermal_calculator import get_thermal_specs
-from core.lca_engine import calculate_item_lca, calculate_batch_lca
-from core.passport_generator import generate_passport_pdf
+from core.vision_engine import (
+    detect_sample_casing_metadata,
+    parse_iso_tokens,
+    run_opencv_pipeline,
+)
 
 # Set page configuration
 st.set_page_config(
@@ -260,9 +262,9 @@ if menu_selection == "📸 1. Vision & Mold Stamp Scanner":
             )
             
             if bfr_result['rohs_compliant']:
-                st.markdown(f"<span class='badge-pass'>EU RoHS: PASSED</span> <span class='badge-pass'>POPs: CLEARED</span>", unsafe_allow_html=True)
+                st.markdown("<span class='badge-pass'>EU RoHS: PASSED</span> <span class='badge-pass'>POPs: CLEARED</span>", unsafe_allow_html=True)
             else:
-                st.markdown(f"<span class='badge-hazard'>EU RoHS: REJECTED</span> <span class='badge-hazard'>BFR HAZARD</span>", unsafe_allow_html=True)
+                st.markdown("<span class='badge-hazard'>EU RoHS: REJECTED</span> <span class='badge-hazard'>BFR HAZARD</span>", unsafe_allow_html=True)
                 
             st.metric("BFR Contamination Risk", f"{bfr_result['risk_score']*100:.1f}%")
             st.caption(f"Estimated PBDE Level: {bfr_result['estimated_pbde_ppm']}")

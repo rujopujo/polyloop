@@ -5,6 +5,7 @@ EU POPs Regulation 2019/1021, and WEEE Directive 2012/19/EU Annex VII.
 """
 from core.polymer_kb import APPLIANCE_PROFILES
 
+
 def evaluate_bfr_hazard(appliance_type, vintage_year=None, has_fr40=False, iso_token=""):
     """
     Computes quantitative risk score (0.0 to 1.0) and regulatory status.
