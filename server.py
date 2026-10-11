@@ -57,6 +57,20 @@ RESIN_CODES = [
 
 LAST_CONV_LAYER = "out_relu"
 
+# ── Cross-Platform Keras 2.15 Model Store Compatibility Patch ─────────────────
+try:
+    from keras.src.saving import saving_lib
+    _orig_h5_get = saving_lib.H5IOStore.get
+    def _safe_h5_get(self, path):
+        res = _orig_h5_get(self, path)
+        if not res and path:
+            alt_path = path.replace("/", "\\") if "/" in path else path.replace("\\", "/")
+            res = _orig_h5_get(self, alt_path)
+        return res
+    saving_lib.H5IOStore.get = _safe_h5_get
+except Exception:
+    pass
+
 # ─────────────────────────────────────────────────────────────────────────────
 # MODEL & RESOURCE SINGLETONS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -89,7 +103,7 @@ def init_resources():
     s0_classes_path = MODELS_DIR / "stage0_classes.json"
     if s0_model_path.exists() and s0_classes_path.exists():
         try:
-            stage0_model = tf.keras.models.load_model(str(s0_model_path))
+            stage0_model = tf.keras.models.load_model(str(s0_model_path), compile=False)
             with open(s0_classes_path, "r", encoding="utf-8") as f:
                 stage0_classes = json.load(f)
             print("[INFO] Stage 0 model loaded successfully.")
@@ -101,7 +115,7 @@ def init_resources():
     s1_classes_path = MODELS_DIR / "stage1_classes.json"
     if s1_model_path.exists() and s1_classes_path.exists():
         try:
-            stage1_model = tf.keras.models.load_model(str(s1_model_path))
+            stage1_model = tf.keras.models.load_model(str(s1_model_path), compile=False)
             with open(s1_classes_path, "r", encoding="utf-8") as f:
                 stage1_classes = json.load(f)
             print("[INFO] Stage 1 model loaded successfully.")
