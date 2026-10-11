@@ -1,0 +1,19 @@
+{
+  "MobileNetV2": {
+    "val_accuracy": 0.8379,
+    "model_size_mb": 21.9,
+    "inference_ms": 110.5
+  },
+  "EfficientNetB0": {
+    "val_accuracy": 0.866,
+    "train_time_s": 6227.5,
+    "model_size_mb": 29.0,
+    "inference_ms": 148.6
+  },
+  "MobileNetV3Large": {
+    "val_accuracy": 0.8727,
+    "train_time_s": 4607.7,
+    "model_size_mb": 20.5,
+    "inference_ms": 111.6
+  }
+}

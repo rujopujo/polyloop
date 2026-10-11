@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReForm — AI E-Waste Polymer Identification & Reuse System</title>
+  <meta name="description" content="State-of-the-art E-Waste plastic sorting, polymer resin code identification, BFR risk analysis, and reuse intelligence platform.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-recycle"></i>
+        </div>
+        <div class="brand-text">
+          <h1>ReForm <span class="badge-version">v2.0 AI</span></h1>
+          <p class="brand-tagline">E-Waste Polymer Identification & Circular Reuse System</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <div class="system-status" id="systemStatus">
+          <span class="status-pulse"></span>
+          <span class="status-text" id="statusLabel">Models Online</span>
+        </div>
+        <button class="btn-ghost" id="btnHelpModal" title="ISO 11469 & EPR Regulation Reference">
+          <i class="fa-solid fa-book-open"></i> Regulations & Codes
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Content -->
+  <main class="app-main">
+    <div class="content-container">
+      
+      <!-- Intro Banner -->
+      <section class="hero-card">
+        <div class="hero-content">
+          <h2>Intelligent Multi-Stage Polymer Triage</h2>
+          <p>
+            Standard optical cameras cannot distinguish visual polymers (ABS, PC, HIPS look identical). 
+            ReForm uses a dual-stage <strong>MobileNetV2 classifier + Grad-CAM explainability</strong> followed by 
+            <strong>EasyOCR ISO 11469 resin code scanning</strong> for confirmed recovery guidance under India's 
+            <em>E-Waste (Management) Rules 2022</em>.
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number">6</span>
+            <span class="stat-label">Material Classes</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">7</span>
+            <span class="stat-label">Plastic Types</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">12</span>
+            <span class="stat-label">Resin Codes (ISO)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 1 & Step 2 Two-Column Grid -->
+      <div class="workflow-grid">
+        
+        <!-- STEP 1 COLUMN: ITEM IDENTIFICATION -->
+        <section class="card step-card" id="step1Card">
+          <div class="card-header">
+            <div class="step-badge">Step 1</div>
+            <div class="card-title-group">
+              <h3>Item & Material Identification</h3>
+              <p>Stage 0 Material Sorter &bull; Stage 1 Plastic Classifier</p>
+            </div>
+          </div>
+
+          <!-- Input Mode Tabs -->
+          <div class="input-tabs">
+            <button class="tab-btn active" data-tab="cam1">
+              <i class="fa-solid fa-camera"></i> Live Camera
+            </button>
+            <button class="tab-btn" data-tab="upload1">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Upload Photo
+            </button>
+          </div>
+
+          <!-- Camera Stream Container -->
+          <div class="input-pane active" id="paneCam1">
+            <div class="camera-viewport">
+              <video id="video1" autoplay playsinline muted></video>
+              <canvas id="canvas1" class="hidden-canvas"></canvas>
+              <div class="camera-crosshairs">
+                <div class="crosshair-corner tl"></div>
+                <div class="crosshair-corner tr"></div>
+                <div class="crosshair-corner bl"></div>
+                <div class="crosshair-corner br"></div>
+                <div class="scanner-laser" id="scannerLaser1"></div>
+              </div>
+              <div class="camera-fallback" id="camFallback1">
+                <i class="fa-solid fa-video-slash"></i>
+                <p>Camera not started or permission denied.</p>
+                <button class="btn-secondary btn-sm" id="btnStartCam1">Start Camera</button>
+              </div>
+            </div>
+
+            <div class="camera-controls">
+              <button class="btn-primary" id="btnSnap1">
+                <i class="fa-solid fa-camera-retro"></i> Capture & Analyze
+              </button>
+              <button class="btn-secondary" id="btnSwitchCam1" title="Switch Camera">
+                <i class="fa-solid fa-rotate"></i> Flip
+              </button>
+            </div>
+          </div>
+
+          <!-- File Upload Container -->
+          <div class="input-pane" id="paneUpload1">
+            <div class="dropzone" id="dropzone1">
+              <input type="file" id="fileInput1" accept="image/*" class="file-input-hidden">
+              <div class="dropzone-prompt" id="dropPrompt1">
+                <i class="fa-solid fa-image dropzone-icon"></i>
+                <p>Drag & drop item photo here, or <span>Browse</span></p>
+                <span class="file-hint">JPG, PNG, WEBP (fill frame with item)</span>
+              </div>
+              <div class="dropzone-preview hidden" id="dropPreview1">
+                <img id="previewImg1" alt="Uploaded item preview">
+                <button class="btn-icon remove-btn" id="btnRemoveFile1" title="Remove image">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="camera-controls">
+              <button class="btn-primary" id="btnAnalyzeUpload1" disabled>
+                <i class="fa-solid fa-microchip"></i> Analyze Uploaded Photo
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 1 Results Display Container -->
+          <div class="results-container hidden" id="step1Results">
+            <div class="results-divider">
+              <span>AI Analysis Results</span>
+            </div>
+
+            <!-- Material Badge -->
+            <div class="prediction-hero" id="s0HeroBadge">
+              <div class="hero-badge-icon" id="s0Icon">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div class="hero-badge-details">
+                <span class="category-eyebrow">Material Detected</span>
+                <h4 id="s0MaterialLabel">Plastic</h4>
+                <div class="confidence-wrap">
+                  <div class="confidence-bar-bg">
+                    <div class="confidence-bar-fill" id="s0ConfBar"></div>
+                  </div>
+                  <span class="confidence-val" id="s0ConfValue">95.4%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grad-CAM Explainability View -->
+            <div class="explainability-box">
+              <div class="explainability-header">
+                <span class="explain-title"><i class="fa-solid fa-brain"></i> Grad-CAM Visual Explainability</span>
+                <div class="view-toggles">
+                  <button class="view-btn active" data-view="overlay">Overlay</button>
+                  <button class="view-btn" data-view="original">Original</button>
+                </div>
+              </div>
+              <div class="explain-img-wrapper">
+                <img id="gradcamImg1" alt="Grad-CAM visualization overlay">
+                <div class="explain-caption">Heatmap highlights what pixels guided the neural network decision.</div>
+              </div>
+            </div>
+
+            <!-- Non-Plastic Routing Panel -->
+            <div class="route-panel nonplastic-panel hidden" id="nonplasticPanel">
+              <div class="alert-box alert-hazardous hidden" id="batteryWarningBox">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div>
+                  <strong>HAZARDOUS E-WASTE ITEM:</strong>
+                  <p id="batteryWarningText"></p>
+                </div>
+              </div>
+
+              <div class="info-card">
+                <h5><i class="fa-solid fa-arrow-right-arrow-left"></i> Recovery Route</h5>
+                <p id="npRecoveryRoute" class="highlight-text"></p>
+                <p id="npRecoveryDetail" class="sub-detail"></p>
+              </div>
+
+              <div class="two-col-info">
+                <div class="info-card">
+                  <h5><i class="fa-solid fa-radiation"></i> Hazards</h5>
+                  <ul id="npHazardsList" class="styled-list"></ul>
+                </div>
+                <div class="info-card">
+                  <h5><i class="fa-solid fa-hand-holding-hand"></i> Handling Rules</h5>
+                  <ul id="npHandlingList" class="styled-list"></ul>
+                </div>
+              </div>
+
+              <div class="info-card">
+                <h5><i class="fa-solid fa-recycle"></i> Recyclability</h5>
+                <p id="npRecyclableNote"></p>
+              </div>
+
+              <div class="regulation-footer" id="npRegulationNote"></div>
+            </div>
+
+            <!-- Plastic Stage 1 Panel -->
+            <div class="route-panel plastic-panel hidden" id="plasticPanel">
+              <div class="item-identification-box">
+                <div class="item-id-header">
+                  <span class="category-eyebrow">Identified Item Type</span>
+                  <h4 id="s1ItemLabel">Keyboard</h4>
+                  <div class="confidence-wrap">
+                    <div class="confidence-bar-bg">
+                      <div class="confidence-bar-fill" id="s1ConfBar"></div>
+                    </div>
+                    <span class="confidence-val" id="s1ConfValue">92.0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BFR Risk Warning Card -->
+              <div class="bfr-banner" id="bfrRiskBanner">
+                <div class="bfr-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                <div class="bfr-content">
+                  <span class="bfr-title" id="bfrTitle">Brominated Flame Retardant (BFR) Risk</span>
+                  <p id="bfrDescription"></p>
+                </div>
+              </div>
+
+              <!-- Estimated Polymer Note -->
+              <div class="polymer-estimated-box">
+                <div class="polymer-estimate-header">
+                  <i class="fa-solid fa-vial"></i>
+                  <div>
+                    <strong>Estimated Polymer: <span id="estimatedPolymerCode">ABS</span></strong>
+                    <p>Estimated by typical casing composition. Use <strong>Step 2</strong> to confirm with optical resin scan.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Handling & Reuse -->
+              <div class="two-col-info">
+                <div class="info-card">
+                  <h5><i class="fa-solid fa-shield-halved"></i> Handling & Safety</h5>
+                  <ul id="plasticHandlingList" class="styled-list"></ul>
+                </div>
+                <div class="info-card">
+                  <h5><i class="fa-solid fa-wand-magic-sparkles"></i> Circular Reuse Options</h5>
+                  <ul id="plasticReuseList" class="styled-list"></ul>
+                </div>
+              </div>
+
+              <div class="regulation-footer" id="plasticRegulationNote"></div>
+            </div>
+
+          </div>
+        </section>
+
+
+        <!-- STEP 2 COLUMN: RESIN CODE OCR -->
+        <section class="card step-card" id="step2Card">
+          <div class="card-header">
+            <div class="step-badge badge-step2">Step 2</div>
+            <div class="card-title-group">
+              <h3>Resin Code Optical Scanner</h3>
+              <p>Moulded ISO 11469 Marking &bull; CLAHE Preprocessing &bull; EasyOCR</p>
+            </div>
+          </div>
+
+          <div class="step2-guide-banner">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <p>Scan the embossed plastic identification mark on the casing (e.g. <code>&gt;ABS&lt;</code>, <code>&gt;PC+ABS&lt;</code>, <code>&gt;PP&lt;</code>, <code>&gt;HIPS&lt;</code>).</p>
+          </div>
+
+          <!-- Input Mode Tabs for Step 2 -->
+          <div class="input-tabs">
+            <button class="tab-btn active" data-tab="cam2">
+              <i class="fa-solid fa-camera"></i> Close-Up Camera
+            </button>
+            <button class="tab-btn" data-tab="upload2">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Upload Close-Up
+            </button>
+          </div>
+
+          <!-- Camera Stream Container for Step 2 -->
+          <div class="input-pane active" id="paneCam2">
+            <div class="camera-viewport viewport-macro">
+              <video id="video2" autoplay playsinline muted></video>
+              <canvas id="canvas2" class="hidden-canvas"></canvas>
+              <div class="camera-crosshairs macro-target">
+                <div class="macro-target-circle"></div>
+                <div class="scanner-laser" id="scannerLaser2"></div>
+              </div>
+              <div class="camera-fallback" id="camFallback2">
+                <i class="fa-solid fa-video-slash"></i>
+                <p>Camera not started.</p>
+                <button class="btn-secondary btn-sm" id="btnStartCam2">Start Camera</button>
+              </div>
+            </div>
+
+            <div class="camera-controls">
+              <button class="btn-primary" id="btnSnap2">
+                <i class="fa-solid fa-barcode"></i> Scan Resin Marking
+              </button>
+              <button class="btn-secondary" id="btnSwitchCam2" title="Switch Camera">
+                <i class="fa-solid fa-rotate"></i> Flip
+              </button>
+            </div>
+          </div>
+
+          <!-- File Upload Container for Step 2 -->
+          <div class="input-pane" id="paneUpload2">
+            <div class="dropzone" id="dropzone2">
+              <input type="file" id="fileInput2" accept="image/*" class="file-input-hidden">
+              <div class="dropzone-prompt" id="dropPrompt2">
+                <i class="fa-solid fa-magnifying-glass-chart dropzone-icon"></i>
+                <p>Drag & drop close-up resin marking here, or <span>Browse</span></p>
+                <span class="file-hint">Close, sharp, well-lit photo of the symbol</span>
+              </div>
+              <div class="dropzone-preview hidden" id="dropPreview2">
+                <img id="previewImg2" alt="Resin code preview">
+                <button class="btn-icon remove-btn" id="btnRemoveFile2" title="Remove image">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="camera-controls">
+              <button class="btn-primary" id="btnAnalyzeUpload2" disabled>
+                <i class="fa-solid fa-fingerprint"></i> Scan Uploaded Marking
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2 Results Container -->
+          <div class="results-container hidden" id="step2Results">
+            <div class="results-divider">
+              <span>OCR Verification Results</span>
+            </div>
+
+            <!-- OCR Match Status Badge -->
+            <div class="ocr-match-card" id="ocrMatchCard">
+              <div class="ocr-match-header">
+                <div class="match-icon" id="ocrMatchIcon">
+                  <i class="fa-solid fa-check-double"></i>
+                </div>
+                <div class="match-titles">
+                  <span class="category-eyebrow">Confirmed Polymer (ISO 11469)</span>
+                  <h4 id="ocrResinCode">&gt;ABS&lt;</h4>
+                  <span class="match-confidence" id="ocrConfidenceScore">Fuzzy Match: 95%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Computer Vision Pipeline Preview -->
+            <div class="cv-pipeline-box">
+              <span class="pipeline-title"><i class="fa-solid fa-sliders"></i> Adaptive CLAHE Computer Vision Pipeline</span>
+              <p class="pipeline-desc">Contrast-limited adaptive histogram equalization and thresholding enhanced for etched plastics.</p>
+              <div class="pipeline-img-wrap">
+                <img id="cvPreprocessedImg" alt="Preprocessed thresholded OCR view">
+              </div>
+            </div>
+
+            <!-- OCR Detections List -->
+            <div class="info-card">
+              <h5><i class="fa-solid fa-quote-left"></i> Raw OCR Readings</h5>
+              <div class="tags-container" id="rawOcrTags"></div>
+            </div>
+
+            <!-- Polymer Technical Specs Card -->
+            <div class="info-card" id="polymerSpecsCard">
+              <h5><i class="fa-solid fa-atom"></i> Polymer Thermal & Material Characteristics</h5>
+              <p id="polymerPropertiesText" class="sub-detail"></p>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal / Reference Drawer for Regulations & ISO Codes -->
+  <div class="modal-backdrop hidden" id="refModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-scale-balanced"></i> E-Waste Regulations & ISO 11469 Reference</h3>
+        <button class="btn-icon" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <h4>India's E-Waste (Management) Rules 2022</h4>
+        <p>Under the revised EPR (Extended Producer Responsibility) framework, electronic manufacturers and dismantlers must channel specific engineering plastics (ABS, PC, HIPS) to certified recyclers to prevent hazardous open burning or unscientific recycling.</p>
+        
+        <h4>Brominated Flame Retardants (BFRs)</h4>
+        <p>High-temperature casings (monitors, printer chassis, TV back panels) often contain polybrominated diphenyl ethers (PBDEs). Incinerating them creates toxic dioxins and furans. They must be mechanically ground or pyrolyzed in controlled facilities.</p>
+
+        <h4>Common ISO 11469 Polymer Markings in E-Waste</h4>
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Resin Code</th>
+              <th>Polymer Name</th>
+              <th>Typical E-Waste Usage</th>
+              <th>Recyclability</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>&gt;ABS&lt;</td><td>Acrylonitrile Butadiene Styrene</td><td>Keyboards, mouse shells, monitor bezels</td><td>High (Mechanical)</td></tr>
+            <tr><td>&gt;PC+ABS&lt;</td><td>Polycarbonate + ABS blend</td><td>Laptop chassis, smartphone bodies</td><td>High (Compounding)</td></tr>
+            <tr><td>&gt;PC&lt;</td><td>Polycarbonate</td><td>Optical disc trays, transparent casings</td><td>High</td></tr>
+            <tr><td>&gt;HIPS&lt;</td><td>High Impact Polystyrene</td><td>TV back panels, refrigerator liners</td><td>Moderate</td></tr>
+            <tr><td>&gt;PP&lt;</td><td>Polypropylene</td><td>Internal brackets, battery casings</td><td>High</td></tr>
+            <tr><td>&gt;PVC&lt;</td><td>Polyvinyl Chloride</td><td>Cable sheathing, connector boots</td><td>Specialized</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <h4 id="loadingTitle">Running Neural Inference…</h4>
+      <p id="loadingSubtitle">Computing Stage 0 & Stage 1 tensors and Grad-CAM activations</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast hidden" id="toast"></div>
+
+  <!-- Application Script -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

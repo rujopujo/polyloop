@@ -1,0 +1,27 @@
+# Ignore large training datasets and local environments
+data/
+temp_datasets/
+train.ipynb
+dataset_summary.json
+download_datasets.py
+organise_dataset.py
+
+# Git & IDE
+.git/
+.gitignore
+.vscode/
+.env
+
+# Python caches & virtual environments
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# Backup models (only production models are needed)
+models/*
+!models/stage0_model.keras
+!models/stage0_classes.json
+!models/stage1_model.keras
+!models/stage1_classes.json

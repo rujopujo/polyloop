@@ -1,8 +1,13 @@
-﻿# Large data/model zips
+# Large data/model zips
 *.zip
 
-# Trained models (too large for GitHub, re-generate from train.ipynb)
-models/
+# Trained models: ignore experiment models, whitelist production models
+models/*
+!models/stage0_model.keras
+!models/stage0_classes.json
+!models/stage1_model.keras
+!models/stage1_classes.json
+!models/model_comparison.json
 
 # Python
 __pycache__/
@@ -13,5 +18,11 @@ __pycache__/
 # Temp datasets
 temp_datasets/
 
-# Conda/venv
+# Conda/venv/IDE
+.venv/
 .env
+.vscode/
+
+# OS generated
+.DS_Store
+Thumbs.db
