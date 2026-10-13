@@ -3,6 +3,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-FF6F00?style=flat-square&logo=tensorflow&logoColor=white)](https://tensorflow.org)
+[![PWA](https://img.shields.io/badge/PWA-Ready-10B981?style=flat-square&logo=pwa&logoColor=white)](static/manifest.webmanifest)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
@@ -15,13 +16,21 @@
 - ⚡ **Dual Frontend Experience**:
   - **Modern Full-Stack Web Application** (`server.py` + `static/`): Ultra-fast FastAPI backend with a responsive vanilla CSS/JS glassmorphic HUD, real-time camera scanning, and interactive Grad-CAM heatmap inspection.
   - **Streamlit Analytics Dashboard** (`app.py`): Rapid prototyping interface for exploration and data science analysis.
+- 📱 **Progressive Web App (PWA) & Offline Shell**:
+  - Installable directly to mobile home screens and desktops (`static/manifest.webmanifest`, high-res icons).
+  - Service Worker (`static/sw.js`) with cache-first asset strategy and live online/offline connectivity indicator.
+- 🌐 **1-Click Remote HTTPS & Cloudflare Tunnel**:
+  - Automated launcher scripts (`start_tunnel.bat` & `start_tunnel.ps1`) spin up the FastAPI backend and a secure Cloudflare Tunnel (`trycloudflare.com`) with zero port forwarding, enabling real-time mobile camera scanning on any smartphone or tablet. Detailed in [PWA_CLOUDFLARE_GUIDE.md](PWA_CLOUDFLARE_GUIDE.md).
 - 🎯 **Two-Stage Machine Learning Pipeline**:
   - **Stage 0 (Material Sorter)**: Classifies general material into `plastic`, `metal`, `PCB`, `glass_screen`, `battery`, or `unknown`.
-  - **Stage 1 (Item Classifier)**: If plastic, classifies the casing into `keyboard`, `mouse`, `printer_casing`, `tv_panel`, `remote`, `other_plastic`, or `unknown`.
+  - **Stage 1 (Item Classifier)**: If plastic, classifies casing into `keyboard`, `mouse`, `printer_casing`, `tv_panel`, `remote`, `other_plastic`, or `unknown`.
 - 🔍 **Resin Code OCR Scanner (ISO 11469)**: EasyOCR with OpenCV image enhancement (CLAHE, bilateral filtering, thresholding) and fuzzy matching (`thefuzz`) to detect moulded resin stamps (`>ABS<`, `>PC+ABS<`, `>PP<`, etc.).
 - 🧠 **Explainable AI (Grad-CAM)**: Heatmaps overlay predicted visual attention zones so users understand why the model made each classification.
-- 📦 **Pre-trained Models Bundled**: Production weights (`models/stage0_model.keras` & `models/stage1_model.keras`) included out of the box.
-- 🐳 **Docker & Hugging Face Spaces Ready**: Containerized deployment for 1-click cloud hosting with zero cost (see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)).
+- 🛠️ **CLI Dataset Ingestion & Training Suite**:
+  - `add_images.py`: Ingests and validates photos with automatic 70% train / 15% val / 15% test splitting.
+  - `train_models.py`: Dual-stage MobileNetV2 transfer learning trainer with frozen-head warmup and fine-tuning epochs.
+- 📦 **Pre-trained Production Models Bundled**: Production weights (`models/stage0_model.keras` & `models/stage1_model.keras`) included out of the box with cross-platform loading support.
+- 🐳 **Docker & Cloud Deployment Ready**: Containerized deployment for 1-click cloud hosting on Hugging Face Spaces (see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)).
 
 ---
 
@@ -68,12 +77,12 @@ Comprehensive Upcycling & Compliance Report
 
 ### Prerequisites
 - Python 3.11+
-- *(Optional)* NVIDIA GPU with CUDA 11.8 for accelerated training/inference
+- *(Optional)* NVIDIA GPU with CUDA for accelerated training/inference
 
 ### 1. Clone & Set Up Environment
 
 ```bash
-git clone https://github.com/rujopujo/polyloop.git reform
+git clone https://github.com/rujopujo/reform.git
 cd reform
 
 # Create virtual environment
@@ -96,7 +105,19 @@ python -m uvicorn server:app --host 127.0.0.1 --port 7860 --reload
 ```
 Open [http://127.0.0.1:7860](http://127.0.0.1:7860) in your browser.
 
-#### Option B: Streamlit Dashboard
+#### Option B: 1-Click PWA & Cloudflare Tunnel (Mobile Camera Testing)
+Instantly exposes ReForm over a secure HTTPS URL for smartphones and tablets:
+- **Windows Command Prompt**:
+  ```bat
+  start_tunnel.bat
+  ```
+- **PowerShell**:
+  ```powershell
+  .\start_tunnel.ps1
+  ```
+See [PWA_CLOUDFLARE_GUIDE.md](PWA_CLOUDFLARE_GUIDE.md) for full instructions on installing ReForm as an app on iOS and Android.
+
+#### Option C: Streamlit Dashboard
 ```bash
 streamlit run app.py
 ```
@@ -126,28 +147,46 @@ When running `server.py`, FastAPI exposes an interactive OpenAPI documentation p
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `GET /` | `GET` | Serves the main web application UI |
-| `GET /health` | `GET` | Health check & model status |
-| `POST /predict/stage0` | `POST` | Material classification + Grad-CAM heatmap |
-| `POST /predict/stage1` | `POST` | Plastic item classification + Grad-CAM heatmap |
-| `POST /ocr/resin-code` | `POST` | EasyOCR resin stamp detection & fuzzy matching |
-| `GET /knowledge-base` | `GET` | Knowledge base entries for polymers and EPR rules |
-| `GET /nonplastic-routes` | `GET` | Recycling routes for non-plastic materials |
+| `GET /` | `GET` | Serves the main web application UI (`static/index.html`) |
+| `GET /manifest.webmanifest` | `GET` | Progressive Web App manifest specification |
+| `GET /sw.js` | `GET` | Service Worker script for offline asset caching |
+| `GET /api/health` | `GET` | Health check, device configuration, and loaded model status |
+| `POST /api/step1-classify` | `POST` | Dual-stage material & item inference + Grad-CAM heatmap generation |
+| `POST /api/step2-ocr` | `POST` | EasyOCR resin stamp detection + ISO 11469 fuzzy matching + polymer lookup |
 
 ---
 
 ## 🧠 Model Training & Dataset Preparation
 
-Model training scripts and transfer learning pipelines are provided in `train.ipynb`:
+### 1. Ingest New Images
+Quickly add images to the dataset with automatic 70% train / 15% val / 15% test splitting:
+```bash
+# Ingest new device images into Stage 1
+python add_images.py --source "C:/path/to/my_keyboards" --device "keyboard"
 
+# Check dataset balance & distribution
+python add_images.py --status
+```
+
+### 2. Train Models via CLI
+Train MobileNetV2 models headlessly with 2-phase transfer learning (frozen feature extractor followed by fine-tuning):
+```bash
+# Train Stage 1 (Plastic Item Classifier)
+python train_models.py --stage 1
+
+# Train Stage 0 (Material Sorter)
+python train_models.py --stage 0
+
+# Train both stages sequentially
+python train_models.py --stage all
+```
+
+### 3. Interactive Notebook
+Explore model comparison benchmarks across MobileNetV2, EfficientNetB0, and MobileNetV3Large in `train.ipynb`:
 ```bash
 jupyter notebook train.ipynb
 ```
-
-- **Backbones**: MobileNetV2 (primary), EfficientNetB0, MobileNetV3Large
-- **Strategy**: Two-phase transfer learning (frozen feature extractor $\rightarrow$ unfreezing top layers with low learning rate `1e-5`)
-- **Dataset tools**: `download_datasets.py` and `organise_dataset.py` format Roboflow e-waste datasets into 70/15/15 train/val/test splits.
-- Benchmark comparison table is saved in [models/model_comparison.json](models/model_comparison.json).
+Benchmark comparison results are saved in [models/model_comparison.json](models/model_comparison.json).
 
 ---
 
@@ -155,30 +194,35 @@ jupyter notebook train.ipynb
 
 ```text
 ReForm/
-├── server.py               # FastAPI application backend & REST endpoints
-├── static/                 # Full-stack web frontend assets
-│   ├── index.html          # Semantic HTML5 UI layout
-│   ├── style.css           # Modern glassmorphism & responsive styles
-│   └── app.js              # Client-side camera, scanning, and API integration
-├── app.py                  # Streamlit dashboard interface
-├── gradcam.py              # Grad-CAM heatmap extraction and blending
-├── models/                 # Pre-trained models and class label maps
-│   ├── stage0_model.keras  # Stage 0 material sorter model (~21.8 MB)
-│   ├── stage0_classes.json # Stage 0 class index mapping
-│   ├── stage1_model.keras  # Stage 1 plastic item model (~21.8 MB)
-│   ├── stage1_classes.json # Stage 1 class index mapping
-│   └── model_comparison.json
-├── knowledge_base.json     # Polymer hazard, BFR, handling, & reuse guidelines
-├── nonplastic_routes.json  # Recovery pathways for metals, PCBs, glass, batteries
-├── requirements.txt        # Production Python dependencies
-├── Dockerfile              # Docker container definition
-├── .dockerignore           # Docker build exclusions
-├── DEPLOYMENT_GUIDE.md     # Hugging Face Spaces deployment guide
-├── train.ipynb             # Jupyter training notebook
-├── download_datasets.py    # Dataset downloading script
-├── organise_dataset.py     # Class mapping & dataset preparation
-├── check_env.py            # Environment & GPU verification script
-└── README.md               # Project documentation
+├── server.py                   # FastAPI backend & REST API endpoints
+├── app.py                      # Streamlit dashboard interface
+├── static/                     # Full-stack web frontend assets
+│   ├── index.html              # Modern glassmorphism HTML5 UI
+│   ├── style.css               # Responsive design, animations & PWA styles
+│   ├── app.js                  # Frontend state machine, camera, & PWA controller
+│   ├── manifest.webmanifest    # Progressive Web App manifest
+│   ├── sw.js                   # Service Worker for offline asset caching
+│   └── icons/                  # PWA app icons (192, 512, maskable, favicon)
+├── start_tunnel.bat            # 1-Click launcher for Windows CMD (FastAPI + Tunnel)
+├── start_tunnel.ps1            # 1-Click launcher for PowerShell (FastAPI + Tunnel)
+├── PWA_CLOUDFLARE_GUIDE.md     # Mobile PWA installation & Cloudflare guide
+├── DEPLOYMENT_GUIDE.md         # Free cloud hosting guide (Hugging Face Spaces)
+├── add_images.py               # Dataset ingestion & 70/15/15 auto-splitter CLI
+├── train_models.py             # Headless MobileNetV2 transfer learning trainer
+├── train.ipynb                 # Interactive Jupyter training & evaluation notebook
+├── gradcam.py                  # Grad-CAM heatmap generation & visualization
+├── models/                     # Pre-trained production weights & label maps
+│   ├── stage0_model.keras      # Stage 0 Material Sorter (~21.8 MB)
+│   ├── stage0_classes.json     # Stage 0 class index mapping
+│   ├── stage1_model.keras      # Stage 1 Plastic Item Classifier (~21.8 MB)
+│   ├── stage1_classes.json     # Stage 1 class index mapping
+│   └── model_comparison.json  # Benchmark metrics across backbones
+├── knowledge_base.json         # Polymer properties, BFR hazards & EPR compliance rules
+├── nonplastic_routes.json      # Recovery pathways for metals, PCBs, glass, batteries
+├── requirements.txt            # Python dependencies
+├── packages.txt                # Linux system dependencies for cloud deployment
+├── Dockerfile                  # Container definition for Docker & Hugging Face
+└── README.md                   # Project documentation
 ```
 
 ---
