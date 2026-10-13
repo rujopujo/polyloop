@@ -1,0 +1,55 @@
+{
+  "name": "ReForm — AI E-Waste Polymer Identification & Reuse System",
+  "short_name": "ReForm AI",
+  "description": "Dual-stage AI polymer classification, ISO 11469 resin code OCR reading, and circular reuse intelligence under India's E-Waste Rules 2022.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#080c14",
+  "theme_color": "#080c14",
+  "categories": ["utilities", "productivity", "sustainability"],
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Step 1: Item Classifier",
+      "short_name": "Classify",
+      "description": "Optical triage of e-waste materials and plastics",
+      "url": "/#step1",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Step 2: ISO Resin Code Scanner",
+      "short_name": "Resin OCR",
+      "description": "OCR resin code identification (ABS, PC, HIPS)",
+      "url": "/#step2",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

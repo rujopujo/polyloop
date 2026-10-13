@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="reform-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#080c14"/>
+  <rect x="52" y="52" width="408" height="408" rx="100" fill="url(#reform-grad)"/>
+  <g fill="#080c14">
+    <path d="M256 160 c-18 0 -34 9 -44 24 l18 10 c6 -10 16 -16 26 -16 c18 0 32 14 32 32 l0 12 l-24 -16 l0 48 l48 0 l-16 -16 l0 -28 c0 -28 -22 -50 -50 -50 Z"/>
+    <path d="M192 280 l-18 10 c14 24 40 40 70 40 l0 -18 c-22 0 -42 -12 -52 -32 Z"/>
+    <path d="M312 240 l-18 -10 c-6 10 -16 16 -26 16 l0 18 c18 0 34 -9 44 -24 Z"/>
+    <circle cx="256" cy="256" r="28" fill="#080c14"/>
+  </g>
+</svg>

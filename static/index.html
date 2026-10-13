@@ -14,6 +14,17 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#080c14">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ReForm">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/static/icons/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="/static/icons/icon.svg">
+
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -32,8 +43,11 @@
       </div>
       
       <div class="header-actions">
+        <button class="btn-install-pwa hidden" id="btnInstallPwa" title="Install ReForm App on your home screen or desktop">
+          <i class="fa-solid fa-download"></i> <span class="install-text">Install App</span>
+        </button>
         <div class="system-status" id="systemStatus">
-          <span class="status-pulse"></span>
+          <span class="status-pulse" id="statusPulse"></span>
           <span class="status-text" id="statusLabel">Models Online</span>
         </div>
         <button class="btn-ghost" id="btnHelpModal" title="ISO 11469 & EPR Regulation Reference">

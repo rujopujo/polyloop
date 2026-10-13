@@ -26,6 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadingSubtitle = document.getElementById("loadingSubtitle");
   const toast = document.getElementById("toast");
   const statusLabel = document.getElementById("statusLabel");
+  const statusPulse = document.getElementById("statusPulse");
+  const btnInstallPwa = document.getElementById("btnInstallPwa");
 
   // Step 1 Elements
   const video1 = document.getElementById("video1");
@@ -541,4 +543,63 @@ document.addEventListener("DOMContentLoaded", () => {
       refModal.classList.add("hidden");
     }
   });
+
+  // ── Progressive Web App (PWA) Controller ────────────────────────────────
+  let deferredPrompt = null;
+
+  // Listen for beforeinstallprompt event
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (btnInstallPwa) {
+      btnInstallPwa.classList.remove("hidden");
+    }
+  });
+
+  if (btnInstallPwa) {
+    btnInstallPwa.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      btnInstallPwa.classList.add("hidden");
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        showToast("ReForm installed to device!");
+      }
+      deferredPrompt = null;
+    });
+  }
+
+  window.addEventListener("appinstalled", () => {
+    if (btnInstallPwa) btnInstallPwa.classList.add("hidden");
+    showToast("ReForm is running as an installed PWA.");
+  });
+
+  // Online / Offline Connectivity Monitor
+  function updateNetworkStatus() {
+    if (navigator.onLine) {
+      if (statusPulse) statusPulse.classList.remove("offline");
+      if (statusLabel) statusLabel.textContent = "Models Online";
+    } else {
+      if (statusPulse) statusPulse.classList.add("offline");
+      if (statusLabel) statusLabel.textContent = "Offline Mode";
+      showToast("Network offline. UI shell active, inference paused.");
+    }
+  }
+
+  window.addEventListener("online", updateNetworkStatus);
+  window.addEventListener("offline", updateNetworkStatus);
+
+  // Register Service Worker
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .then((reg) => {
+          console.log("[PWA] Service Worker active with scope:", reg.scope);
+        })
+        .catch((err) => {
+          console.warn("[PWA] Service Worker registration failed:", err);
+        });
+    });
+  }
 });

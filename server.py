@@ -283,6 +283,33 @@ def serve_index():
     return {"message": "ReForm API is active. Static UI files initializing…"}
 
 
+@app.get("/manifest.webmanifest")
+def serve_manifest():
+    manifest_file = STATIC_DIR / "manifest.webmanifest"
+    if manifest_file.exists():
+        return FileResponse(
+            manifest_file,
+            media_type="application/manifest+json",
+            headers={"Cache-Control": "public, max-age=3600"}
+        )
+    return JSONResponse(status_code=404, content={"error": "Manifest not found"})
+
+
+@app.get("/sw.js")
+def serve_sw():
+    sw_file = STATIC_DIR / "sw.js"
+    if sw_file.exists():
+        return FileResponse(
+            sw_file,
+            media_type="application/javascript",
+            headers={
+                "Service-Worker-Allowed": "/",
+                "Cache-Control": "no-cache, no-store, must-revalidate"
+            }
+        )
+    return JSONResponse(status_code=404, content={"error": "Service worker not found"})
+
+
 @app.get("/api/health")
 def health_check():
     return {
