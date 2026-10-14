@@ -20,7 +20,7 @@ uvicorn server:app --host 127.0.0.1 --port 7860 --reload
 # or launch PWA + Cloudflare tunnel:
 start_tunnel.bat
 
-# Run the Streamlit app
+# Run the Streamlit app locally (or visit live at https://reform-ai.streamlit.app)
 streamlit run app.py
 
 # Train models

@@ -1,11 +1,14 @@
 # ♻️ ReForm — E-Waste Plastic Identification and Upcycling System
 
+[![Live Demo](https://img.shields.io/badge/Streamlit-reform--ai.streamlit.app-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)](https://reform-ai.streamlit.app)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-FF6F00?style=flat-square&logo=tensorflow&logoColor=white)](https://tensorflow.org)
 [![PWA](https://img.shields.io/badge/PWA-Ready-10B981?style=flat-square&logo=pwa&logoColor=white)](static/manifest.webmanifest)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+
+> 🚀 **Live Demo:** Try the online deployment right now at **[reform-ai.streamlit.app](https://reform-ai.streamlit.app)**
 
 **ReForm** is an end-to-end AI-powered e-waste identification, material classification, and polymer upcycling platform. Built with a dual-stage transfer-learning pipeline (MobileNetV2), EasyOCR resin code parsing, and Grad-CAM explainability, it helps recyclers and makers identify polymers, detect hazardous brominated flame retardants (BFR), route non-plastic e-waste, and adhere to **India's E-Waste (Management) Rules 2022**.
 
@@ -14,6 +17,7 @@
 ## 🌟 Highlights
 
 - ⚡ **Dual Frontend Experience**:
+  - **Live Cloud App**: Hosted online at **[reform-ai.streamlit.app](https://reform-ai.streamlit.app)** for instant web testing and identification.
   - **Modern Full-Stack Web Application** (`server.py` + `static/`): Ultra-fast FastAPI backend with a responsive vanilla CSS/JS glassmorphic HUD, real-time camera scanning, and interactive Grad-CAM heatmap inspection.
   - **Streamlit Analytics Dashboard** (`app.py`): Rapid prototyping interface for exploration and data science analysis.
 - 📱 **Progressive Web App (PWA) & Offline Shell**:
@@ -119,12 +123,14 @@ Instantly exposes ReForm over a secure HTTPS URL for smartphones and tablets:
   ```
 See [docs/PWA_CLOUDFLARE_GUIDE.md](docs/PWA_CLOUDFLARE_GUIDE.md) for full instructions on installing ReForm as an app on iOS and Android.
 
-#### Option C: Streamlit Dashboard
-```bash
-streamlit run app.py
-# or: streamlit run src/app.py
-```
-Open [http://localhost:8501](http://localhost:8501) in your browser.
+#### Option C: Streamlit Dashboard (Live Cloud & Local)
+- 🌐 **Live Cloud URL**: **[https://reform-ai.streamlit.app](https://reform-ai.streamlit.app)** (No local setup required)
+- **Run locally**:
+  ```bash
+  streamlit run app.py
+  # or: streamlit run src/app.py
+  ```
+  Open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ---
 
