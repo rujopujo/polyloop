@@ -28,8 +28,9 @@ import os
 import shutil
 from pathlib import Path
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "scripts" else Path(__file__).resolve().parent
 SRC  = Path(r"C:\Users\iomth\Desktop\E-Waste Detector.v1i.folder")
-DST  = Path(r"G:\clg\ReForm\data")
+DST  = PROJECT_ROOT / "data"
 EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 # Source split names → our split names

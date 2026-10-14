@@ -1,10 +1,14 @@
-# Ignore large training datasets and local environments
-data/
+# Ignore large training image datasets and local scratch data
+data/stage0/
+data/stage1/
+data/temp_datasets/
 temp_datasets/
-train.ipynb
-dataset_summary.json
-download_datasets.py
-organise_dataset.py
+data/dataset_summary.json
+
+# Development & Research Folders
+notebooks/
+scripts/
+docs/
 
 # Git & IDE
 .git/

@@ -42,7 +42,7 @@ Hugging Face Spaces are Git repositories. You can push your code directly from y
 
 ```bash
 # 1. Stage the deployment files and models
-git add server.py static/ Dockerfile .dockerignore requirements.txt .gitignore gradcam.py knowledge_base.json nonplastic_routes.json models/stage0_model.keras models/stage0_classes.json models/stage1_model.keras models/stage1_classes.json
+git add src/ static/ models/ data/knowledge_base.json data/nonplastic_routes.json Dockerfile .dockerignore requirements.txt .gitignore server.py app.py
 
 # 2. Commit the changes
 git commit -m "Deploy ReForm full-stack web app with Docker on Hugging Face"

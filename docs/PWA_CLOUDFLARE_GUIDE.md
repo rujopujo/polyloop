@@ -12,11 +12,13 @@ We've provided automatic launcher scripts in the repository root:
 Double-click `start_tunnel.bat` (or run in cmd):
 ```bat
 start_tunnel.bat
+# or: scripts\start_tunnel.bat
 ```
 
 ### On PowerShell:
 ```powershell
 .\start_tunnel.ps1
+# or: .\scripts\start_tunnel.ps1
 ```
 
 ### What the script does automatically:

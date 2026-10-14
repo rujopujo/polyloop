@@ -27,7 +27,7 @@ api.authenticate()
 print("Kaggle auth OK")
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-PROJECT  = Path(__file__).parent
+PROJECT  = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "scripts" else Path(__file__).resolve().parent
 TEMP     = PROJECT / "temp_datasets"
 DATA     = PROJECT / "data"
 TEMP.mkdir(exist_ok=True)
@@ -365,6 +365,6 @@ for stage, classes in [("stage0", STAGE0_CLASSES), ("stage1", STAGE1_CLASSES)]:
                 summary[stage][split][cls] = sum(
                     1 for f in d.iterdir() if f.suffix.lower() in IMG_EXTS
                 )
-with open(PROJECT / "dataset_summary.json", "w") as f:
+with open(DATA / "dataset_summary.json", "w") as f:
     json.dump(summary, f, indent=2)
-print("Summary saved to dataset_summary.json")
+print("Summary saved to data/dataset_summary.json")

@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 from PIL import Image
 
-PROJECT_ROOT = Path(__file__).parent.resolve()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "scripts" else Path(__file__).resolve().parent
 DATA_DIR = PROJECT_ROOT / "data"
 STAGE0_DIR = DATA_DIR / "stage0"
 STAGE1_DIR = DATA_DIR / "stage1"
